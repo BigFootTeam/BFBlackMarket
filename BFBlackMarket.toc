@@ -11,4 +11,6 @@
 ## X-Curse-Project-ID:
 ## X-Wago-ID:
 
+Locales\LoadLocales.xml
+
 Init.lua
