@@ -1,0 +1,14 @@
+## Interface: 110100,110105
+## Title: BFBlackMarket
+## Title-zhCN: 大脚黑市
+## Version: r1
+## Author: enderneko (BigFootTeam)
+## Dependencies: AbstractFramework
+## SavedVariables: BFBM_DB
+## AddonCompartmentFunc:
+## IconTexture: Interface\AddOns\BFBlackMarket\BFBM
+
+## X-Curse-Project-ID:
+## X-Wago-ID:
+
+Init.lua
