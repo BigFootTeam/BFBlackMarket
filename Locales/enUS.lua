@@ -5,7 +5,8 @@
 -- key - A key in the table (cannot be nil) (value)
 -- value - New value to set for the key (value)
 select(2, ...).L = setmetatable({
-
+    ["CURRENT"] = "Current",
+    ["HISTORY"] = "History",
 }, {
     __index = function(self, key)
         if (key ~= nil) then
