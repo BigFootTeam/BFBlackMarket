@@ -94,6 +94,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
         end
     end
 
+    BFBM.UpdateCurrentItems()
+
     -- TODO: communication
 end
 BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))

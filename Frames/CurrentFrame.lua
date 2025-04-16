@@ -4,7 +4,11 @@ local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
 
+local BAG_ITEM_QUALITY_COLORS = BAG_ITEM_QUALITY_COLORS
+
 local currentFrame
+local serverDropdown, itemList
+local updateRequired, LoadItems
 
 ---------------------------------------------------------------------
 -- create
@@ -14,10 +18,148 @@ local function CreateCurrentFrame()
     AF.SetPoint(currentFrame, "TOPLEFT", BFBMMainFrame, 10, -40)
     AF.SetPoint(currentFrame, "BOTTOMRIGHT", BFBMMainFrame, -10, 10)
 
+    currentFrame:SetOnShow(function()
+        if updateRequired then
+            LoadItems()
+        end
+    end)
+
     -- server dropdown
-    local serverDropdown = AF.CreateDropdown(currentFrame)
+    serverDropdown = AF.CreateDropdown(currentFrame)
     serverDropdown:SetPoint("TOPLEFT")
     serverDropdown:SetPoint("TOPRIGHT")
+
+    local servers = AF.GetKeys(BFBM_DB.data.servers)
+    tinsert(servers, 1, L["Current Server"])
+    serverDropdown:SetItems(servers)
+    serverDropdown:SetOnClick(function(v)
+        LoadItems(v)
+    end)
+
+    -- item list
+    itemList = AF.CreateScrollList(currentFrame, nil, 5, 5, 5, 40, 5)
+    AF.SetPoint(itemList, "TOPLEFT", serverDropdown, "BOTTOMLEFT", 0, -10)
+    AF.SetPoint(itemList, "TOPRIGHT", serverDropdown, "BOTTOMRIGHT", 0, -10)
+end
+
+---------------------------------------------------------------------
+-- item pane
+---------------------------------------------------------------------
+local function Pane_OnEnter(self)
+    self:SetBackdropColor(AF.GetColorRGB("sheet_highlight"))
+    AF.IconTooltip:SetOwner(self, "ANCHOR_NONE")
+    AF.IconTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
+    AF.IconTooltip:SetItem(self.t.itemID)
+end
+
+local function Pane_OnLeave(self)
+    self:SetBackdropColor(AF.GetColorRGB("sheet_normal"))
+    AF.IconTooltip:Hide()
+end
+
+local function Pane_Load(self, t)
+    texplore(t)
+    self.t = t
+
+    self.icon:SetTexture(t.texture)
+    self.name:SetText(t.name)
+    self.type:SetText(t.itemType)
+    self.bid:SetText(AF.FormatMoney(t.currBid, nil, true, true))
+
+    if t.quality then
+        local r, g, b = AF.GetItemQualityColor(t.quality)
+        self.iconBG:SetVertexColor(r, g, b)
+        self.name:SetTextColor(r, g, b)
+    else
+        self.iconBG:SetVertexColor(0, 0, 0)
+        self.name:SetTextColor(1.0, 0.82, 0)
+    end
+
+    if t.quantity and t.quantity > 1 then
+        self.quantity:SetText(t.quantity)
+    else
+        self.quantity:SetText("")
+    end
+end
+
+local itemPanePool = AF.CreateObjectPool(function()
+    local pane = AF.CreateBorderedFrame(itemList.slotFrame, nil, nil, nil, "sheet_normal")
+    pane:SetOnEnter(Pane_OnEnter)
+    pane:SetOnLeave(Pane_OnLeave)
+
+    -- iconBG
+    pane.iconBG = AF.CreateTexture(pane, AF.GetPlainTexture(), "black", "BORDER")
+    AF.SetPoint(pane.iconBG, "TOPLEFT", 5, -5)
+    AF.SetPoint(pane.iconBG, "BOTTOMRIGHT", pane, "BOTTOMLEFT", 35, 5)
+
+    -- icon
+    pane.icon = AF.CreateTexture(pane)
+    AF.SetOnePixelInside(pane.icon, pane.iconBG)
+    AF.ApplyDefaultTexCoord(pane.icon)
+
+    -- name
+    pane.name = AF.CreateFontString(pane)
+    pane.name:SetJustifyH("LEFT")
+    pane.name:SetWordWrap(false)
+    AF.SetPoint(pane.name, "TOPLEFT", pane.iconBG, "TOPRIGHT", 5, 0)
+    AF.SetPoint(pane.name, "RIGHT", pane, -5, 0)
+
+    -- quantity
+    pane.quantity = AF.CreateFontString(pane, nil, "white", "AF_FONT_OUTLINE")
+    pane.quantity:SetPoint("BOTTOMRIGHT", pane.icon, 1, 1)
+
+    -- type
+    pane.type = AF.CreateFontString(pane, nil, "gray")
+    AF.SetPoint(pane.type, "BOTTOMRIGHT", -5, 5)
+
+    -- bid
+    pane.bid = AF.CreateFontString(pane)
+    AF.SetPoint(pane.bid, "BOTTOMLEFT", pane.iconBG, "BOTTOMRIGHT", 5, 0)
+
+    -- function
+    pane.Load = Pane_Load
+
+    return pane
+end)
+
+---------------------------------------------------------------------
+-- load
+---------------------------------------------------------------------
+local isCurrentServerSelected
+
+LoadItems = function(server)
+    local data
+    if not server or server == L["Current Server"] then
+        isCurrentServerSelected = true
+        data = BFBM.currentServerData
+    else
+        isCurrentServerSelected = false
+        data = BFBM_DB.data.servers[server]
+    end
+
+    -- hide
+    itemPanePool:ReleaseAll()
+
+    -- load
+    for _, t in pairs(data.items) do
+        local pane = itemPanePool:Acquire()
+        pane:Load(t)
+    end
+
+    -- set
+    itemList:SetWidgets(itemPanePool:GetAllActives())
+end
+
+function BFBM.UpdateCurrentItems()
+    if not isCurrentServerSelected then return end
+
+    if currentFrame and currentFrame:IsShown() then
+        local scroll = itemList:GetScroll()
+        LoadItems()
+        itemList:SetScroll(scroll) -- restore scroll position
+    else
+        updateRequired = true
+    end
 end
 
 ---------------------------------------------------------------------
@@ -27,6 +169,8 @@ AF.RegisterCallback("BFBM_ShowFrame", function(which)
     if which == "current" then
         if not currentFrame then
             CreateCurrentFrame()
+            serverDropdown:SetSelectedValue(L["Current Server"])
+            LoadItems()
         end
         currentFrame:Show()
     else
