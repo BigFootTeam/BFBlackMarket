@@ -5,6 +5,11 @@ local L = BFBM.L
 local AF = _G.AbstractFramework
 
 local BAG_ITEM_QUALITY_COLORS = BAG_ITEM_QUALITY_COLORS
+local BIDS = BIDS
+local DressUpLink = DressUpLink
+local ChatEdit_ChooseBoxForSend = ChatEdit_ChooseBoxForSend
+local IsControlKeyDown = IsControlKeyDown
+local IsShiftKeyDown = IsShiftKeyDown
 
 local currentFrame
 local serverDropdown, itemList
@@ -37,7 +42,7 @@ local function CreateCurrentFrame()
     end)
 
     -- item list
-    itemList = AF.CreateScrollList(currentFrame, nil, 5, 5, 5, 40, 5)
+    itemList = AF.CreateScrollList(currentFrame, nil, 5, 5, 6, 40, 5)
     AF.SetPoint(itemList, "TOPLEFT", serverDropdown, "BOTTOMLEFT", 0, -10)
     AF.SetPoint(itemList, "TOPRIGHT", serverDropdown, "BOTTOMRIGHT", 0, -10)
 end
@@ -64,7 +69,10 @@ local function Pane_Load(self, t)
     self.icon:SetTexture(t.texture)
     self.name:SetText(t.name)
     self.type:SetText(t.itemType)
-    self.bid:SetText(AF.FormatMoney(t.currBid, nil, true, true))
+
+    local currBid = AF.FormatMoney(t.currBid == 0 and t.minBid or t.currBid, nil, true, true)
+    local numBids = AF.WrapTextInColor(t.numBids == 0 and "" or (t.numBids .. " " .. BIDS), "gray")
+    self.bid:SetText(currBid .. " " .. numBids)
 
     if t.quality then
         local r, g, b = AF.GetItemQualityColor(t.quality)
@@ -86,6 +94,16 @@ local itemPanePool = AF.CreateObjectPool(function()
     local pane = AF.CreateBorderedFrame(itemList.slotFrame, nil, nil, nil, "sheet_normal")
     pane:SetOnEnter(Pane_OnEnter)
     pane:SetOnLeave(Pane_OnLeave)
+    pane:SetOnMouseUp(function()
+        if IsControlKeyDown() then
+            DressUpLink(pane.t.link)
+        elseif IsShiftKeyDown() then
+            local editBox = ChatEdit_ChooseBoxForSend()
+            if editBox:HasFocus() then
+                editBox:Insert(pane.t.link)
+            end
+        end
+    end)
 
     -- iconBG
     pane.iconBG = AF.CreateTexture(pane, AF.GetPlainTexture(), "black", "BORDER")
