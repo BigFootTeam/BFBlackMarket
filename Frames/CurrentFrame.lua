@@ -14,6 +14,7 @@ local IsShiftKeyDown = IsShiftKeyDown
 local currentFrame
 local serverDropdown, itemList
 local updateRequired, LoadItems
+local isCurrentServerSelected, selectedServer
 
 ---------------------------------------------------------------------
 -- create
@@ -71,7 +72,7 @@ local function Pane_OnLeave(self)
 end
 
 local function Pane_Load(self, t)
-    texplore(t)
+    -- texplore(t)
     self.t = t
 
     self.icon:SetTexture(t.texture)
@@ -155,6 +156,8 @@ local itemPanePool = AF.CreateObjectPool(function()
             pane.favorite:SetColor(AF.GetColorTable("gold", 0.7))
             pane.favorite:SetHoverColor("gold")
         end
+        -- refresh
+        LoadItems(selectedServer)
     end)
 
     -- name
@@ -185,15 +188,42 @@ end)
 ---------------------------------------------------------------------
 -- load
 ---------------------------------------------------------------------
-local isCurrentServerSelected
+local function Comparator(a, b)
+    -- favorite
+    if BFBM_DB.favorites[a.t.itemID] ~= BFBM_DB.favorites[b.t.itemID] then
+        return BFBM_DB.favorites[a.t.itemID]
+    end
+
+    -- hot items
+    if a.t.numBids ~= b.t.numBids then
+        return a.t.numBids > b.t.numBids
+    end
+
+    -- current bid
+    if a.t.currBid ~= b.t.currBid then
+        return a.t.currBid > b.t.currBid
+    end
+
+    -- min bid
+    if a.t.minBid ~= b.t.minBid then
+        return a.t.minBid > b.t.minBid
+    end
+
+    -- item name
+    if a.t.name ~= b.t.name then
+        return a.t.name < b.t.name
+    end
+end
 
 LoadItems = function(server)
     local data
     if not server or server == L["Current Server"] then
         isCurrentServerSelected = true
+        selectedServer = AF.player.realm
         data = BFBM.currentServerData
     else
         isCurrentServerSelected = false
+        selectedServer = server
         data = BFBM_DB.data.servers[server]
     end
 
@@ -206,8 +236,12 @@ LoadItems = function(server)
         pane:Load(t)
     end
 
+    -- sort
+    local widgets = itemPanePool:GetAllActives()
+    sort(widgets, Comparator)
+
     -- set
-    itemList:SetWidgets(itemPanePool:GetAllActives())
+    itemList:SetWidgets(widgets)
 end
 
 function BFBM.UpdateCurrentItems()
