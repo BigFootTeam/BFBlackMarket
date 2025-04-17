@@ -52,14 +52,22 @@ end
 ---------------------------------------------------------------------
 local function Pane_OnEnter(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_highlight"))
+
     AF.IconTooltip:SetOwner(self, "ANCHOR_NONE")
     AF.IconTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
     AF.IconTooltip:SetItem(self.t.itemID)
+
+    self.favorite:Show()
 end
 
 local function Pane_OnLeave(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_normal"))
+
     AF.IconTooltip:Hide()
+
+    if not self:IsMouseOver() and not BFBM_DB.favorites[self.t.itemID] then
+        self.favorite:Hide()
+    end
 end
 
 local function Pane_Load(self, t)
@@ -88,6 +96,20 @@ local function Pane_Load(self, t)
     else
         self.quantity:SetText("")
     end
+
+    if BFBM_DB.favorites[t.itemID] then
+        self.favorite:SetIcon(AF.GetIcon("Star2"))
+        self.favorite:SetColor(AF.GetColorTable("gold", 0.7))
+        self.favorite:SetHoverColor("gold")
+        self.favorite:Show()
+    else
+        self.favorite:SetIcon(AF.GetIcon("Star1"))
+        self.favorite:SetColor("darkgray")
+        self.favorite:SetHoverColor("white")
+        if not self:IsMouseOver() then
+            self.favorite:Hide()
+        end
+    end
 end
 
 local itemPanePool = AF.CreateObjectPool(function()
@@ -115,12 +137,32 @@ local itemPanePool = AF.CreateObjectPool(function()
     AF.SetOnePixelInside(pane.icon, pane.iconBG)
     AF.ApplyDefaultTexCoord(pane.icon)
 
+    -- favorite
+    pane.favorite = AF.CreateIconButton(pane, nil, 15, 15, 0, "darkgray", "darkgray")
+    AF.SetPoint(pane.favorite, "TOPRIGHT", -4, -4)
+    pane.favorite:Hide()
+    pane.favorite:HookOnEnter(pane:GetOnEnter())
+    pane.favorite:HookOnLeave(pane:GetOnLeave())
+    pane.favorite:SetOnClick(function()
+        if BFBM_DB.favorites[pane.t.itemID] then
+            BFBM_DB.favorites[pane.t.itemID] = nil
+            pane.favorite:SetIcon(AF.GetIcon("Star1"))
+            pane.favorite:SetColor("darkgray")
+            pane.favorite:SetHoverColor("white")
+        else
+            BFBM_DB.favorites[pane.t.itemID] = true
+            pane.favorite:SetIcon(AF.GetIcon("Star2"))
+            pane.favorite:SetColor(AF.GetColorTable("gold", 0.7))
+            pane.favorite:SetHoverColor("gold")
+        end
+    end)
+
     -- name
     pane.name = AF.CreateFontString(pane)
     pane.name:SetJustifyH("LEFT")
     pane.name:SetWordWrap(false)
     AF.SetPoint(pane.name, "TOPLEFT", pane.iconBG, "TOPRIGHT", 5, 0)
-    AF.SetPoint(pane.name, "RIGHT", pane, -5, 0)
+    AF.SetPoint(pane.name, "RIGHT", pane.favorite, "LEFT", -5, 0)
 
     -- quantity
     pane.quantity = AF.CreateFontString(pane, nil, "white", "AF_FONT_OUTLINE")
