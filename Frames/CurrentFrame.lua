@@ -81,7 +81,7 @@ local function Pane_Load(self, t)
 
     local currBid = AF.FormatMoney(t.currBid == 0 and t.minBid or t.currBid, nil, true, true)
     local numBids = AF.WrapTextInColor(t.numBids == 0 and "" or (t.numBids .. " " .. BIDS), "gray")
-    self.bid:SetText(currBid .. " " .. numBids)
+    self.bid:SetText((t.currBid >= 99999990000 and AF.WrapTextInColor(currBid, "firebrick") or currBid) .. " " .. numBids)
 
     if t.quality then
         local r, g, b = AF.GetItemQualityColor(t.quality)
