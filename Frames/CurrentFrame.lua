@@ -71,6 +71,9 @@ end
 local function Pane_OnEnter(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_highlight"))
 
+    if BFBM_DB.config.requireCtrlForItemTooltips then
+        AF.Tooltip:RequireModifier("ctrl")
+    end
     AF.Tooltip:SetOwner(self, "ANCHOR_NONE")
     AF.Tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
     AF.Tooltip:SetItem(self.t.itemID)

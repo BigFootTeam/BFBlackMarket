@@ -25,7 +25,12 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         BFBM.versionNum = tonumber(BFBM.version:match("%d+"))
 
         if type(BFBM_DB) ~= "table" then BFBM_DB = {} end
-        if type(BFBM_DB.scale) ~= "number" then BFBM_DB.scale = 1 end
+
+        if type(BFBM_DB.config) ~= "table" then BFBM_DB.config = {} end
+        if type(BFBM_DB.config.scale) ~= "number" then BFBM_DB.config.scale = 1 end
+        if type(BFBM_DB.config.requireCtrlForItemTooltips) ~= "boolean" then
+            BFBM_DB.config.requireCtrlForItemTooltips = true
+        end
 
         if type(BFBM_DB.favorites) ~= "table" then
             BFBM_DB.favorites = {
