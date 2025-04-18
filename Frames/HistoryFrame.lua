@@ -7,6 +7,7 @@ local AF = _G.AbstractFramework
 local historyFrame
 local searchBox, itemList
 local LoadItems
+local updateRequired
 
 ---------------------------------------------------------------------
 -- create
@@ -23,7 +24,7 @@ local function CreateHistoryFrame()
     end)
 
     -- search
-    searchBox = AF.CreateEditBox(historyFrame, L["Search"], nil, 20)
+    searchBox = AF.CreateEditBox(historyFrame, _G.SEARCH, nil, 20)
     searchBox:SetPoint("TOPLEFT")
     searchBox:SetPoint("TOPRIGHT")
 
@@ -39,9 +40,9 @@ end
 local function Pane_OnEnter(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_highlight"))
 
-    AF.IconTooltip:SetOwner(self, "ANCHOR_NONE")
-    AF.IconTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
-    AF.IconTooltip:SetItem(self.id)
+    AF.Tooltip:SetOwner(self, "ANCHOR_NONE")
+    AF.Tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
+    AF.Tooltip:SetItem(self.id)
 
     self.favorite:Show()
 end
@@ -49,11 +50,45 @@ end
 local function Pane_OnLeave(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_normal"))
 
-    AF.IconTooltip:Hide()
+    AF.Tooltip:Hide()
 
     if not self:IsMouseOver() and not BFBM_DB.favorites[self.id] then
         self.favorite:Hide()
     end
+end
+
+local function CalcAvgBid(t)
+    if t.lastAvgCalc == t.lastUpdate then
+        return t.avgBid
+    end
+
+    local totalBid = 0
+    local totalCount = 0
+
+    for _, history in pairs(t.history) do -- servers
+        for _, day in pairs(history) do -- days
+            -- "final" bid
+            local bid
+            if day.finalBid then
+                bid = day.finalBid
+            else
+                _, bid = AF.GetMaxKeyValue(day.bids)
+            end
+
+            if bid then
+                totalBid = totalBid + bid
+                totalCount = totalCount + 1
+            end
+        end
+    end
+
+    if totalCount > 0 then
+        t.avgBid = totalBid / totalCount
+    else
+        t.avgBid = 0
+    end
+
+    return t.avgBid
 end
 
 local function Pane_Load(self, id, t)
@@ -61,11 +96,19 @@ local function Pane_Load(self, id, t)
     self.id = id
     self.t = t
 
-    self.itemID:SetText(id)
+    self.itemID:SetText("ID: " .. id)
     self.icon:SetTexture(t.texture)
     self.name:SetText(t.name)
 
-    self.avgBid:SetText("AVG_BID")
+    if CalcAvgBid(t) == 0 then
+        self.avgBid:SetText("")
+    else
+        if t.avgBid >= BFBM.MAX_BID then
+            self.avgBid:SetText(AF.WrapTextInColor(L["Avg"] .. ": ", "gray") .. AF.WrapTextInColor(AF.FormatMoney(t.avgBid, nil, true, true), "firebrick"))
+        else
+            self.avgBid:SetText(AF.WrapTextInColor(L["Avg"] .. ": ", "gray") .. AF.FormatMoney(t.avgBid, nil, true, true))
+        end
+    end
 
     if t.quality then
         local r, g, b = AF.GetItemQualityColor(t.quality)
@@ -77,12 +120,12 @@ local function Pane_Load(self, id, t)
     end
 
     if BFBM_DB.favorites[id] then
-        self.favorite:SetIcon(AF.GetIcon("Star2"))
+        self.favorite:SetIcon(AF.GetIcon("Star_Filled"))
         self.favorite:SetColor(AF.GetColorTable("gold", 0.7))
         self.favorite:SetHoverColor("gold")
         self.favorite:Show()
     else
-        self.favorite:SetIcon(AF.GetIcon("Star1"))
+        self.favorite:SetIcon(AF.GetIcon("Star"))
         self.favorite:SetColor("darkgray")
         self.favorite:SetHoverColor("white")
         if not self:IsMouseOver() then
@@ -123,19 +166,21 @@ local itemPanePool = AF.CreateObjectPool(function()
     pane.favorite:HookOnEnter(pane:GetOnEnter())
     pane.favorite:HookOnLeave(pane:GetOnLeave())
     pane.favorite:SetOnClick(function()
-        if BFBM_DB.favorites[pane.t.itemID] then
-            BFBM_DB.favorites[pane.t.itemID] = nil
-            pane.favorite:SetIcon(AF.GetIcon("Star1"))
+        if BFBM_DB.favorites[pane.id] then
+            BFBM_DB.favorites[pane.id] = nil
+            pane.favorite:SetIcon(AF.GetIcon("Star"))
             pane.favorite:SetColor("darkgray")
             pane.favorite:SetHoverColor("white")
         else
-            BFBM_DB.favorites[pane.t.itemID] = true
-            pane.favorite:SetIcon(AF.GetIcon("Star2"))
+            BFBM_DB.favorites[pane.id] = true
+            pane.favorite:SetIcon(AF.GetIcon("Star_Filled"))
             pane.favorite:SetColor(AF.GetColorTable("gold", 0.7))
             pane.favorite:SetHoverColor("gold")
         end
         -- refresh
         LoadItems()
+        -- refresh current
+        BFBM.UpdateCurrentItems(nil, true)
     end)
 
     -- name
@@ -151,6 +196,7 @@ local itemPanePool = AF.CreateObjectPool(function()
 
     -- itemID
     pane.itemID = AF.CreateFontString(pane)
+    pane.itemID:SetColor("gray")
     AF.SetPoint(pane.itemID, "BOTTOMRIGHT", -5, 5)
 
     -- function
@@ -162,6 +208,23 @@ end)
 ---------------------------------------------------------------------
 -- load
 ---------------------------------------------------------------------
+local function Comparator(a, b)
+    -- favorite
+    if BFBM_DB.favorites[a.id] ~= BFBM_DB.favorites[b.id] then
+        return BFBM_DB.favorites[a.id]
+    end
+
+    -- avgBid
+    if a.t.avgBid ~= b.t.avgBid then
+        return a.t.avgBid > b.t.avgBid
+    end
+
+    -- name
+    if a.t.name ~= b.t.name then
+        return a.t.name < b.t.name
+    end
+end
+
 LoadItems = function()
     -- hide
     itemPanePool:ReleaseAll()
@@ -174,9 +237,18 @@ LoadItems = function()
 
     -- sort
     local widgets = itemPanePool:GetAllActives()
+    sort(widgets, Comparator)
 
     -- set
     itemList:SetWidgets(widgets)
+end
+
+function BFBM.UpdateHistoryItems()
+    if historyFrame and historyFrame:IsShown() then
+        LoadItems()
+    else
+        updateRequired = true
+    end
 end
 
 ---------------------------------------------------------------------
