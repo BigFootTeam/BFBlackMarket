@@ -27,6 +27,12 @@ local function CreateHistoryFrame()
     searchBox = AF.CreateEditBox(historyFrame, _G.SEARCH, nil, 20)
     searchBox:SetPoint("TOPLEFT")
     searchBox:SetPoint("TOPRIGHT")
+    searchBox:SetOnHide(nil) -- disable auto reset
+    searchBox:SetOnTextChanged(function(_, userChanged)
+        if userChanged then
+            LoadItems()
+        end
+    end)
 
     -- item list
     itemList = AF.CreateScrollList(historyFrame, nil, 5, 5, 6, 40, 5)
@@ -231,8 +237,11 @@ LoadItems = function()
 
     -- load
     for id, t in pairs(BFBM_DB.data.items) do
-        local pane = itemPanePool:Acquire()
-        pane:Load(id, t)
+        local search = searchBox:GetText()
+        if search == "" or t.name:find(search) or strfind(id, search) then
+            local pane = itemPanePool:Acquire()
+            pane:Load(id, t)
+        end
     end
 
     -- sort
