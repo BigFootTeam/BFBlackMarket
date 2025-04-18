@@ -51,12 +51,37 @@ end
 ---------------------------------------------------------------------
 -- item pane
 ---------------------------------------------------------------------
+local TIME_LEFT = "AUCTION_TIME_LEFT%d"
+local TIME_LEFT_DETAIL = "AUCTION_TIME_LEFT%d_DETAIL"
+
+local function GetTimeLeftColor(timeLeft)
+    if timeLeft == 0 then -- 完成！：拍卖已结束。
+        return "darkgray"
+    elseif timeLeft == 1 then -- 短：少于30分钟
+        return "firebrick"
+    elseif timeLeft == 2 then -- 中：30分钟到2小时
+        return "orange"
+    elseif timeLeft == 3 then -- 长：2小时到12小时
+        return "sand"
+    else -- 非常长：大于12小时
+        return "white"
+    end
+end
+
 local function Pane_OnEnter(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_highlight"))
 
-    AF.IconTooltip:SetOwner(self, "ANCHOR_NONE")
-    AF.IconTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
-    AF.IconTooltip:SetItem(self.t.itemID)
+    AF.Tooltip:SetOwner(self, "ANCHOR_NONE")
+    AF.Tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
+    AF.Tooltip:SetItem(self.t.itemID)
+
+    if self.t.timeLeft then
+        AF.Tooltip2:SetOwner(self, "ANCHOR_NONE")
+        AF.Tooltip2:SetPoint("TOPLEFT", self, "TOPRIGHT", 5, 0)
+        AF.Tooltip2:AddLine(AF.WrapTextInColor(_G[TIME_LEFT:format(self.t.timeLeft)], "accent"))
+        AF.Tooltip2:AddLine(AF.GetIconString("Clock_Round") .. " " .. AF.WrapTextInColor(_G[TIME_LEFT_DETAIL:format(self.t.timeLeft)], GetTimeLeftColor(self.t.timeLeft)))
+        AF.Tooltip2:Show()
+    end
 
     self.favorite:Show()
 end
@@ -64,7 +89,8 @@ end
 local function Pane_OnLeave(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_normal"))
 
-    AF.IconTooltip:Hide()
+    AF.Tooltip:Hide()
+    AF.Tooltip2:Hide()
 
     if not self:IsMouseOver() and not BFBM_DB.favorites[self.t.itemID] then
         self.favorite:Hide()
@@ -79,10 +105,12 @@ local function Pane_Load(self, t)
     self.name:SetText(t.name)
     self.type:SetText(t.itemType)
 
+    -- bid
     local currBid = AF.FormatMoney(t.currBid == 0 and t.minBid or t.currBid, nil, true, true)
     local numBids = AF.WrapTextInColor(t.numBids == 0 and "" or (t.numBids .. " " .. BIDS), "gray")
-    self.bid:SetText((t.currBid >= 99999990000 and AF.WrapTextInColor(currBid, "firebrick") or currBid) .. " " .. numBids)
+    self.bid:SetText((t.currBid >= BFBM.MAX_BID and AF.WrapTextInColor(currBid, "firebrick") or currBid) .. " " .. numBids)
 
+    -- quality
     if t.quality then
         local r, g, b = AF.GetItemQualityColor(t.quality)
         self.iconBG:SetVertexColor(r, g, b)
@@ -92,25 +120,30 @@ local function Pane_Load(self, t)
         self.name:SetTextColor(1.0, 0.82, 0)
     end
 
+    -- quantity
     if t.quantity and t.quantity > 1 then
         self.quantity:SetText(t.quantity)
     else
         self.quantity:SetText("")
     end
 
+    -- favorite
     if BFBM_DB.favorites[t.itemID] then
-        self.favorite:SetIcon(AF.GetIcon("Star2"))
+        self.favorite:SetIcon(AF.GetIcon("Star_Filled"))
         self.favorite:SetColor(AF.GetColorTable("gold", 0.7))
         self.favorite:SetHoverColor("gold")
         self.favorite:Show()
     else
-        self.favorite:SetIcon(AF.GetIcon("Star1"))
+        self.favorite:SetIcon(AF.GetIcon("Star"))
         self.favorite:SetColor("darkgray")
         self.favorite:SetHoverColor("white")
         if not self:IsMouseOver() then
             self.favorite:Hide()
         end
     end
+
+    -- time left
+    self.timeLeft:SetColor(GetTimeLeftColor(t.timeLeft))
 end
 
 local itemPanePool = AF.CreateObjectPool(function()
@@ -138,6 +171,11 @@ local itemPanePool = AF.CreateObjectPool(function()
     AF.SetOnePixelInside(pane.icon, pane.iconBG)
     AF.ApplyDefaultTexCoord(pane.icon)
 
+    -- timeLeft
+    pane.timeLeft = AF.CreateTexture(pane, AF.GetIcon("Clock_Round"), nil, "OVERLAY", nil, nil, nil, "TRILINEAR")
+    pane.timeLeft:SetPoint("TOPLEFT")
+    AF.SetSize(pane.timeLeft, 14, 14)
+
     -- favorite
     pane.favorite = AF.CreateIconButton(pane, nil, 15, 15, 0, "darkgray", "darkgray")
     AF.SetPoint(pane.favorite, "TOPRIGHT", -4, -4)
@@ -147,17 +185,19 @@ local itemPanePool = AF.CreateObjectPool(function()
     pane.favorite:SetOnClick(function()
         if BFBM_DB.favorites[pane.t.itemID] then
             BFBM_DB.favorites[pane.t.itemID] = nil
-            pane.favorite:SetIcon(AF.GetIcon("Star1"))
+            pane.favorite:SetIcon(AF.GetIcon("Star"))
             pane.favorite:SetColor("darkgray")
             pane.favorite:SetHoverColor("white")
         else
             BFBM_DB.favorites[pane.t.itemID] = true
-            pane.favorite:SetIcon(AF.GetIcon("Star2"))
+            pane.favorite:SetIcon(AF.GetIcon("Star_Filled"))
             pane.favorite:SetColor(AF.GetColorTable("gold", 0.7))
             pane.favorite:SetHoverColor("gold")
         end
         -- refresh
         LoadItems(selectedServer)
+        -- refresh history
+        BFBM.UpdateHistoryItems()
     end)
 
     -- name
@@ -244,8 +284,8 @@ LoadItems = function(server)
     itemList:SetWidgets(widgets)
 end
 
-function BFBM.UpdateCurrentItems()
-    if not isCurrentServerSelected then return end
+function BFBM.UpdateCurrentItems(server, force)
+    if selectedServer ~= server and not force then return end
 
     if currentFrame and currentFrame:IsShown() then
         local scroll = itemList:GetScroll()
