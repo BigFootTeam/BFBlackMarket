@@ -65,7 +65,6 @@ local function BLACK_MARKET_ITEM_UPDATE()
                 texture = texture,
                 link = link,
                 quality = quality,
-                -- quantity = quantity,
                 itemType = itemType,
                 history = {},
             }

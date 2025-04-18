@@ -4,6 +4,9 @@ local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
 
+local GetItemInfo = C_Item.GetItemInfo
+local GetItemInfoInstant = C_Item.GetItemInfoInstant
+
 local historyFrame
 local searchBox, itemList
 local LoadItems
@@ -25,8 +28,7 @@ local function CreateHistoryFrame()
 
     -- search
     searchBox = AF.CreateEditBox(historyFrame, _G.SEARCH, nil, 20)
-    searchBox:SetPoint("TOPLEFT")
-    searchBox:SetPoint("TOPRIGHT")
+    AF.SetPoint(searchBox, "TOPLEFT")
     searchBox:SetOnHide(nil) -- disable auto reset
     searchBox:SetOnTextChanged(function(_, userChanged)
         if userChanged then
@@ -34,10 +36,56 @@ local function CreateHistoryFrame()
         end
     end)
 
+    -- add
+    local addButton = AF.CreateButton(historyFrame, nil, "accent_hover", 20, 20)
+    addButton:SetPoint("TOPRIGHT")
+    AF.SetPoint(searchBox, "TOPRIGHT", addButton, "TOPLEFT", -5, 0)
+    addButton:SetTexture(AF.GetIcon("Create_Square"))
+
+    local content = AF.CreateDialogContent(20)
+    content.idBox = AF.CreateEditBox(content, L["Item ID"], nil, 20, "number")
+    content.idBox:SetPoint("TOPLEFT")
+    content.idBox:SetPoint("TOPRIGHT")
+    content.idBox:SetOnTextChanged(function(value, userChanged)
+        if userChanged and value and GetItemInfoInstant(value) then
+            AF.Tooltip:SetOwner(content.dialog, "ANCHOR_NONE")
+            AF.Tooltip:SetPoint("TOPRIGHT", content.dialog, "TOPLEFT", -5, 0)
+            AF.Tooltip:SetItem(value)
+            content.dialog:EnableYes(true)
+        else
+            AF.Tooltip:Hide()
+            content.dialog:EnableYes(false)
+        end
+    end)
+
+    addButton:SetOnClick(function()
+        AF.ShowDialog(historyFrame, L["Add Item to Watchlist"], nil, nil, nil, true, content, true)
+        AF.SetDialogOnConfirm(function()
+            local id = content.idBox:GetValue()
+            if id then
+                BFBM_DB.favorites[id] = true
+                if not BFBM_DB.data.items[id] then
+                    local name, link, quality, _, _, itemType, _, _, _, texture = GetItemInfo(id)
+                    BFBM_DB.data.items[id] = {
+                        name = name,
+                        texture = texture,
+                        link = link,
+                        quality = quality,
+                        itemType = itemType,
+                        history = {},
+                    }
+                end
+                BFBM_DB.data.items[id].lastUpdate = GetServerTime()
+                LoadItems()
+            end
+        end)
+        AF.SetDialogPoint("TOP", 0, -30)
+    end)
+
     -- item list
     itemList = AF.CreateScrollList(historyFrame, nil, 5, 5, 6, 40, 5)
     AF.SetPoint(itemList, "TOPLEFT", searchBox, "BOTTOMLEFT", 0, -10)
-    AF.SetPoint(itemList, "TOPRIGHT", searchBox, "BOTTOMRIGHT", 0, -10)
+    AF.SetPoint(itemList, "TOPRIGHT", addButton, "BOTTOMRIGHT", 0, -10)
 end
 
 ---------------------------------------------------------------------
@@ -46,6 +94,9 @@ end
 local function Pane_OnEnter(self)
     self:SetBackdropColor(AF.GetColorRGB("sheet_highlight"))
 
+    if BFBM_DB.config.requireCtrlForItemTooltips then
+        AF.Tooltip:RequireModifier("ctrl")
+    end
     AF.Tooltip:SetOwner(self, "ANCHOR_NONE")
     AF.Tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
     AF.Tooltip:SetItem(self.id)
