@@ -237,6 +237,16 @@ local function Comparator(a, b)
         return BFBM_DB.favorites[a.t.itemID]
     end
 
+    -- time left
+    if a.t.timeLeft ~= b.t.timeLeft then
+        if a.t.timeLeft == 0 then
+            return false -- completed
+        elseif b.t.timeLeft == 0 then
+            return true -- completed
+        end
+        return a.t.timeLeft < b.t.timeLeft
+    end
+
     -- hot items
     if a.t.numBids ~= b.t.numBids then
         return a.t.numBids > b.t.numBids
