@@ -6,6 +6,7 @@ BFBM.name = "BFBlackMarket"
 BFBM.channelName = "BFBlackMarket"
 BFBM.channelID = 0
 BFBM.minVersion = 1
+BFBM.MAX_BID = 99999990000
 
 local L = BFBM.L
 ---@type AbstractFramework
@@ -26,6 +27,12 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         if type(BFBM_DB) ~= "table" then BFBM_DB = {} end
         if type(BFBM_DB.scale) ~= "number" then BFBM_DB.scale = 1 end
 
+        if type(BFBM_DB.favorites) ~= "table" then
+            BFBM_DB.favorites = {
+                -- [itemID] = true,
+            }
+        end
+
         if type(BFBM_DB.data) ~= "table" then
             BFBM_DB.data = {
                 servers = {
@@ -39,19 +46,13 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                     --             quantity = (number),
                     --             quality = (number),
                     --             itemType = (string),
-                    --             level = (number),
-                    --             levelType = (string),
-                    --             sellerName = (string),
                     --             minBid = (number),
-                    --             minIncrement = (number),
                     --             currBid = (number),
                     --             numBids = (number),
                     --             timeLeft = (number),
-                    --             marketID = (number),
-                    --             isHot = (boolean),
                     --         }
                     --     },
-                    --     lastUpdate = (number|nil),
+                    --     lastUpdate = (number),
                     -- },
                 },
                 items = {
@@ -67,10 +68,13 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                     --                 bids = {
                     --                     [bidIndex] = (number),
                     --                 },
-                    --                 finalPrice = (number|nil),
+                    --                 finalBid = (number|nil),
                     --             },
                     --         },
                     --     },
+                    --     lastUpdate = (number),
+                    --     lastAvgCalc = (number),
+                    --     avgBid = (number),
                     -- },
                 },
             }
@@ -82,7 +86,6 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
 end)
 
 BFBM:RegisterEvent("PLAYER_LOGIN", function()
-    print(AF.player.realm)
     -- current server
     if type(BFBM_DB.data.servers[AF.player.realm]) ~= "table" then
         BFBM_DB.data.servers[AF.player.realm] = {

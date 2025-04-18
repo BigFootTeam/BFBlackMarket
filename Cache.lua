@@ -18,7 +18,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
     wipe(BFBM.currentServerData.items)
     BFBM.currentServerData.lastUpdate = GetServerTime()
 
-    local hotMarketID = select(16, GetHotItem())
+    -- local hotMarketID = select(16, GetHotItem())
 
     -- AUCTION_TIME_LEFT0          完成！
     -- AUCTION_TIME_LEFT0_DETAIL   拍卖已结束。
@@ -44,9 +44,9 @@ local function BLACK_MARKET_ITEM_UPDATE()
             quality = quality,
             itemType = itemType,
             -- usable = usable,
-            level = level,
-            levelType = levelType,
-            sellerName = sellerName,
+            -- level = level,
+            -- levelType = levelType,
+            -- sellerName = sellerName,
             minBid = minBid,
             minIncrement = minIncrement,
             currBid = currBid,
@@ -54,8 +54,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
             numBids = numBids,
             timeLeft = timeLeft,
             link = link,
-            marketID = marketID,
-            isHot = marketID == hotMarketID,
+            -- marketID = marketID,
+            -- isHot = marketID == hotMarketID,
         })
 
         -- update history
@@ -70,6 +70,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
                 history = {},
             }
         end
+        BFBM_DB.data.items[itemID].lastUpdate = GetServerTime()
 
         -- item history server
         if not BFBM_DB.data.items[itemID].history[AF.player.realm] then
@@ -81,20 +82,27 @@ local function BLACK_MARKET_ITEM_UPDATE()
         if not BFBM_DB.data.items[itemID].history[AF.player.realm][day] then
             BFBM_DB.data.items[itemID].history[AF.player.realm][day] = {
                 bids = {},
-                finalPrice = nil,
+                finalBid = nil,
             }
+        end
+
+        -- fix 0 bid
+        if currBid == 0 then
+            currBid = minBid
         end
 
         -- item history bids
         BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] = currBid
 
         -- item history final price
-        if timeLeft == 0 then
-            BFBM_DB.data.items[itemID].history[AF.player.realm][day].finalPrice = currBid
+        if currBid >= BFBM.MAX_BID then
+            BFBM_DB.data.items[itemID].history[AF.player.realm][day].finalBid = currBid
+        elseif timeLeft == 0 then
+            BFBM_DB.data.items[itemID].history[AF.player.realm][day].finalBid = currBid
         end
     end
 
-    BFBM.UpdateCurrentItems()
+    BFBM.UpdateCurrentItems(AF.player.realm)
 
     -- TODO: communication
 end
