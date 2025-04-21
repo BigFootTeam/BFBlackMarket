@@ -8,7 +8,7 @@ local GetItemInfo = C_Item.GetItemInfo
 local GetItemInfoInstant = C_Item.GetItemInfoInstant
 
 local historyFrame
-local searchBox, itemList
+local searchBox, itemList, itemCount
 local LoadItems
 local updateRequired
 
@@ -86,6 +86,10 @@ local function CreateHistoryFrame()
     itemList = AF.CreateScrollList(historyFrame, nil, 5, 5, 6, 40, 5)
     AF.SetPoint(itemList, "TOPLEFT", searchBox, "BOTTOMLEFT", 0, -10)
     AF.SetPoint(itemList, "TOPRIGHT", addButton, "BOTTOMRIGHT", 0, -10)
+
+    -- item count
+    itemCount = AF.CreateFontString(historyFrame, nil, "gray")
+    itemCount:SetPoint("BOTTOMRIGHT")
 end
 
 ---------------------------------------------------------------------
@@ -283,6 +287,8 @@ local function Comparator(a, b)
 end
 
 LoadItems = function()
+    local n = 0
+
     -- hide
     itemPanePool:ReleaseAll()
 
@@ -292,6 +298,7 @@ LoadItems = function()
         if search == "" or t.name:find(search) or strfind(id, search) then
             local pane = itemPanePool:Acquire()
             pane:Load(id, t)
+            n = n + 1
         end
     end
 
@@ -301,6 +308,13 @@ LoadItems = function()
 
     -- set
     itemList:SetWidgets(widgets)
+
+    -- count
+    if n == 0 then
+        itemCount:SetText(L["No items found"])
+    else
+        itemCount:SetText(n .. " " .. L["items"])
+    end
 end
 
 function BFBM.UpdateHistoryItems()

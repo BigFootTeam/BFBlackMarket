@@ -12,7 +12,7 @@ local IsControlKeyDown = IsControlKeyDown
 local IsShiftKeyDown = IsShiftKeyDown
 
 local currentFrame
-local serverDropdown, itemList
+local serverDropdown, itemList, lastUpdateText
 local updateRequired, LoadItems
 local isCurrentServerSelected, selectedServer
 
@@ -46,6 +46,10 @@ local function CreateCurrentFrame()
     itemList = AF.CreateScrollList(currentFrame, nil, 5, 5, 6, 40, 5)
     AF.SetPoint(itemList, "TOPLEFT", serverDropdown, "BOTTOMLEFT", 0, -10)
     AF.SetPoint(itemList, "TOPRIGHT", serverDropdown, "BOTTOMRIGHT", 0, -10)
+
+    -- last update text
+    lastUpdateText = AF.CreateFontString(currentFrame, nil, "gray")
+    lastUpdateText:SetPoint("BOTTOMRIGHT")
 end
 
 ---------------------------------------------------------------------
@@ -295,6 +299,9 @@ LoadItems = function(server)
 
     -- set
     itemList:SetWidgets(widgets)
+
+    -- last update
+    lastUpdateText:SetText(AF.FormatTime(data.lastUpdate))
 end
 
 function BFBM.UpdateCurrentItems(server, force)

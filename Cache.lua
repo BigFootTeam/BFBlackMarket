@@ -15,8 +15,17 @@ local function BLACK_MARKET_ITEM_UPDATE()
         return
     end
 
+    -- old
+    local lastScanned = {}
+    for _, t in pairs(BFBM.currentServerData.items) do
+        lastScanned[t.itemID] = {
+            numBids = t.numBids,
+            timeLeft = t.timeLeft,
+        }
+    end
     wipe(BFBM.currentServerData.items)
-    BFBM.currentServerData.lastUpdate = GetServerTime()
+
+    local dataChanged
 
     -- local hotMarketID = select(16, GetHotItem())
 
@@ -58,6 +67,13 @@ local function BLACK_MARKET_ITEM_UPDATE()
             -- isHot = marketID == hotMarketID,
         })
 
+        -- check if data changed
+        if not lastScanned[itemID] or lastScanned[itemID].numBids ~= numBids or lastScanned[itemID].timeLeft ~= timeLeft then
+            -- NOTE: only update if data changed
+            BFBM.currentServerData.lastUpdate = GetServerTime()
+            dataChanged = true
+        end
+
         -- update history
         if not BFBM_DB.data.items[itemID] then
             BFBM_DB.data.items[itemID] = {
@@ -94,9 +110,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
         BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] = currBid
 
         -- item history final price
-        if currBid >= BFBM.MAX_BID then
-            BFBM_DB.data.items[itemID].history[AF.player.realm][day].finalBid = currBid
-        elseif timeLeft == 0 then
+        if currBid >= BFBM.MAX_BID or timeLeft == 0  then
             BFBM_DB.data.items[itemID].history[AF.player.realm][day].finalBid = currBid
         end
     end
@@ -104,5 +118,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
     BFBM.UpdateCurrentItems(AF.player.realm)
 
     -- TODO: communication
+    if dataChanged then
+
+    end
 end
 BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))
