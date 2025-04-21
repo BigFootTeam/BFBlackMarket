@@ -27,7 +27,10 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         if type(BFBM_DB) ~= "table" then BFBM_DB = {} end
 
         if type(BFBM_DB.config) ~= "table" then BFBM_DB.config = {} end
+
         if type(BFBM_DB.config.scale) ~= "number" then BFBM_DB.config.scale = 1 end
+        BFBMMainFrame:SetScale(BFBM_DB.config.scale)
+
         if type(BFBM_DB.config.requireCtrlForItemTooltips) ~= "boolean" then
             BFBM_DB.config.requireCtrlForItemTooltips = true
         end
