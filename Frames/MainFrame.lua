@@ -4,7 +4,7 @@ local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
 
-local mainFrame = AF.CreateHeaderedFrame(AF.UIParent, "BFBMMainFrame", L["BFBlackMarket"], 300, 360)
+local mainFrame = AF.CreateHeaderedFrame(AF.UIParent, "BFBMMainFrame", L["BFBlackMarket"], 300, 375)
 mainFrame:SetPoint("CENTER")
 
 ---------------------------------------------------------------------
