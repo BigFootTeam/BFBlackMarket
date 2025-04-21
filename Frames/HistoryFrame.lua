@@ -18,7 +18,7 @@ local updateRequired
 local function CreateHistoryFrame()
     historyFrame = AF.CreateFrame(BFBMMainFrame, "BFBMHistoryFrame")
     AF.SetPoint(historyFrame, "TOPLEFT", BFBMMainFrame, 10, -40)
-    AF.SetPoint(historyFrame, "BOTTOMRIGHT", BFBMMainFrame, -10, 10)
+    AF.SetPoint(historyFrame, "BOTTOMRIGHT", BFBMMainFrame, -10, 7)
 
     historyFrame:SetOnShow(function()
         if updateRequired then

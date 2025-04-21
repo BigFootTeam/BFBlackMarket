@@ -22,7 +22,7 @@ local isCurrentServerSelected, selectedServer
 local function CreateCurrentFrame()
     currentFrame = AF.CreateFrame(BFBMMainFrame, "BFBMCurrentFrame")
     AF.SetPoint(currentFrame, "TOPLEFT", BFBMMainFrame, 10, -40)
-    AF.SetPoint(currentFrame, "BOTTOMRIGHT", BFBMMainFrame, -10, 10)
+    AF.SetPoint(currentFrame, "BOTTOMRIGHT", BFBMMainFrame, -10, 7)
 
     currentFrame:SetOnShow(function()
         if updateRequired then
@@ -48,8 +48,12 @@ local function CreateCurrentFrame()
     AF.SetPoint(itemList, "TOPRIGHT", serverDropdown, "BOTTOMRIGHT", 0, -10)
 
     -- last update text
+    local tips = AF.CreateTipsButton(currentFrame)
+    tips:SetPoint("BOTTOMRIGHT")
+    tips:SetTips(L["Last Update"], L["Only update time when data changes"])
+
     lastUpdateText = AF.CreateFontString(currentFrame, nil, "gray")
-    lastUpdateText:SetPoint("BOTTOMRIGHT")
+    lastUpdateText:SetPoint("RIGHT", tips, "LEFT")
 end
 
 ---------------------------------------------------------------------
