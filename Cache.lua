@@ -85,7 +85,6 @@ local function BLACK_MARKET_ITEM_UPDATE()
                 history = {},
             }
         end
-        BFBM_DB.data.items[itemID].lastUpdate = GetServerTime()
 
         -- item history server
         if not BFBM_DB.data.items[itemID].history[AF.player.realm] then
@@ -107,7 +106,10 @@ local function BLACK_MARKET_ITEM_UPDATE()
         end
 
         -- item history bids
-        BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] = currBid
+        if not BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] then
+            BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] = currBid
+            BFBM_DB.data.items[itemID].lastUpdate = GetServerTime()
+        end
 
         -- item history final price
         if currBid >= BFBM.MAX_BID or timeLeft == 0  then
