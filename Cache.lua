@@ -57,7 +57,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
             -- levelType = levelType,
             -- sellerName = sellerName,
             minBid = minBid,
-            minIncrement = minIncrement,
+            -- minIncrement = minIncrement,
             currBid = currBid,
             -- youHaveHighBid = youHaveHighBid,
             numBids = numBids,
@@ -69,12 +69,46 @@ local function BLACK_MARKET_ITEM_UPDATE()
 
         -- check if data changed
         if not lastScanned[itemID] or lastScanned[itemID].numBids ~= numBids or lastScanned[itemID].timeLeft ~= timeLeft then
-            -- NOTE: only update if data changed
-            BFBM.currentServerData.lastUpdate = GetServerTime()
             dataChanged = true
         end
+    end
 
-        -- update history
+    -- update history
+    BFBM.UpdateHistoryCache(BFBM.currentServerData.items)
+
+    if dataChanged then
+        -- NOTE: only update if data changed
+        BFBM.currentServerData.lastUpdate = GetServerTime()
+        -- current
+        BFBM.UpdateCurrentItems(AF.player.realm)
+        -- history
+        BFBM.UpdateHistoryItems()
+        -- send
+        BFBM.UpdateDataForSend()
+        BFBM.SendData("channel")
+        BFBM.SendData("guild")
+    end
+end
+BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))
+
+---------------------------------------------------------------------
+-- history
+---------------------------------------------------------------------
+function BFBM.UpdateHistoryCache(items, lastUpdate)
+    lastUpdate = lastUpdate or GetServerTime()
+
+    for _, t in pairs(items) do
+        local itemID = t.itemID
+        local name = t.name
+        local texture = t.texture
+        local link = t.link
+        local quality = t.quality
+        local itemType = t.itemType
+        local minBid = t.minBid
+        local currBid = t.currBid
+        local numBids = t.numBids
+        local timeLeft = t.timeLeft
+
         if not BFBM_DB.data.items[itemID] then
             BFBM_DB.data.items[itemID] = {
                 name = name,
@@ -92,7 +126,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
         end
 
         -- item history date
-        local day = AF.GetDateString()
+        local day = AF.GetDateString(lastUpdate)
         if not BFBM_DB.data.items[itemID].history[AF.player.realm][day] then
             BFBM_DB.data.items[itemID].history[AF.player.realm][day] = {
                 bids = {},
@@ -108,7 +142,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
         -- item history bids
         if not BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] then
             BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] = currBid
-            BFBM_DB.data.items[itemID].lastUpdate = GetServerTime()
+            BFBM_DB.data.items[itemID].lastUpdate = lastUpdate
         end
 
         -- item history final price
@@ -116,12 +150,35 @@ local function BLACK_MARKET_ITEM_UPDATE()
             BFBM_DB.data.items[itemID].history[AF.player.realm][day].finalBid = currBid
         end
     end
-
-    BFBM.UpdateCurrentItems(AF.player.realm)
-
-    -- TODO: communication
-    if dataChanged then
-
-    end
 end
-BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))
+
+---------------------------------------------------------------------
+-- update local cache
+---------------------------------------------------------------------
+function BFBM.UpdateLocalCache(server, lastUpdate, items)
+    -- update BFBM_DB.data.servers
+    if not BFBM_DB.data.servers[server] then
+        print("UpdateLocalCache: SAVE RECEIVED DATA")
+        BFBM_DB.data.servers[server] = {
+            items = items,
+            lastUpdate = lastUpdate,
+        }
+    elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
+        print("UpdateLocalCache: UPDATE USING RECEIVED DATA")
+        BFBM_DB.data.servers[server].items = items
+        BFBM_DB.data.servers[server].lastUpdate = lastUpdate
+    else
+        print("UpdateLocalCache: RECEIVED DATA OLDER THAN LOCAL")
+        return
+    end
+
+    -- update BFBM_DB.data.items
+    BFBM.UpdateHistoryCache(items, lastUpdate)
+
+    -- current
+    BFBM.UpdateCurrentItems(server)
+    -- history
+    BFBM.UpdateHistoryItems()
+    -- send
+    BFBM.UpdateDataForSend()
+end

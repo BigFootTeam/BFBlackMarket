@@ -149,7 +149,6 @@ end
 -- group joined
 ---------------------------------------------------------------------
 local function GROUP_JOINED()
-    print("GROUP_JOINED")
     BFBM.SendData("group")
 end
 BFBM:RegisterEvent("GROUP_JOINED", GROUP_JOINED)
