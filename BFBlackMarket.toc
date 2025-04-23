@@ -15,6 +15,7 @@ Locales\LoadLocales.xml
 
 Init.lua
 Cache.lua
+Comm.lua
 
 Frames\MainFrame.lua
 Frames\CurrentFrame.lua
