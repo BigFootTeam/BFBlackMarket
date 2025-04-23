@@ -3,7 +3,7 @@ local BFBM = select(2, ...)
 _G.BFBlackMarket = BFBM
 
 BFBM.name = "BFBlackMarket"
-BFBM.channelName = "BFBlackMarket"
+BFBM.channelName = "BFChannel"
 BFBM.channelID = 0
 BFBM.minVersion = 1
 BFBM.MAX_BID = 99999990000
@@ -26,21 +26,25 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
 
         if type(BFBM_DB) ~= "table" then BFBM_DB = {} end
 
-        if type(BFBM_DB.config) ~= "table" then BFBM_DB.config = {} end
-
-        if type(BFBM_DB.config.scale) ~= "number" then BFBM_DB.config.scale = 1 end
-        BFBMMainFrame:SetScale(BFBM_DB.config.scale)
-
-        if type(BFBM_DB.config.requireCtrlForItemTooltips) ~= "boolean" then
-            BFBM_DB.config.requireCtrlForItemTooltips = true
+        -- config
+        if type(BFBM_DB.config) ~= "table" then
+            BFBM_DB.config = {
+                scale = 1,
+                requireCtrlForItemTooltips = true,
+                noDataReceivingInInstance = true,
+            }
         end
+        BFBMMainFrame:SetScale(BFBM_DB.config.scale)
+        BFBM.DisableInstanceReceiving(BFBM_DB.config.noDataReceivingInInstance)
 
+        -- favorites
         if type(BFBM_DB.favorites) ~= "table" then
             BFBM_DB.favorites = {
                 -- [itemID] = true,
             }
         end
 
+        -- data
         if type(BFBM_DB.data) ~= "table" then
             BFBM_DB.data = {
                 servers = {
@@ -87,9 +91,6 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                 },
             }
         end
-
-        -- clear cache
-        -- BFBM_TODAY = nil
     end
 end)
 
@@ -102,6 +103,20 @@ BFBM:RegisterEvent("PLAYER_LOGIN", function()
         }
     end
     BFBM.currentServerData = BFBM_DB.data.servers[AF.player.realm]
+    -- update data for send
+    BFBM.UpdateDataForSend()
+end)
+
+---------------------------------------------------------------------
+-- channel
+---------------------------------------------------------------------
+AF.RegisterTemporaryChannel(BFBM.channelName)
+AF.BlockChatConfigFrameInteractionForChannel(BFBM.channelName)
+AF.RegisterCallback("AF_JOIN_TEMP_CHANNEL", function(channelName, channelID)
+    if channelName == BFBM.channelName then
+        BFBM.channelID = channelID
+        BFBM.BroadcastVersion()
+    end
 end)
 
 ---------------------------------------------------------------------

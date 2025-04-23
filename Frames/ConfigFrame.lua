@@ -20,8 +20,16 @@ local function CreateConfigFrame()
     end)
     AF.SetPoint(requireCtrlCheckButton, "TOPLEFT", configFrame, "TOPLEFT", 0, -2)
 
+    -- noDataReceivingInInstance
+    local blockInstanceReceivingCheckButton = AF.CreateCheckButton(configFrame, L["No data receiving in instances"], function(checked)
+        BFBM_DB.config.noDataReceivingInInstance = checked
+        BFBM.DisableInstanceReceiving(checked)
+    end)
+    AF.SetPoint(blockInstanceReceivingCheckButton, "TOPLEFT", requireCtrlCheckButton, "BOTTOMLEFT", 0, -10)
+
     function configFrame:Load()
         requireCtrlCheckButton:SetChecked(BFBM_DB.config.requireCtrlForItemTooltips)
+        blockInstanceReceivingCheckButton:SetChecked(BFBM_DB.config.noDataReceivingInInstance)
     end
 end
 
