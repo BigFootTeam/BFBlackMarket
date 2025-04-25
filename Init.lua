@@ -32,6 +32,7 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                 scale = 1,
                 requireCtrlForItemTooltips = true,
                 noDataReceivingInInstance = true,
+                priceChangeAlerts = true,
             }
         end
         BFBMMainFrame:SetScale(BFBM_DB.config.scale)

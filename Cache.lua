@@ -9,6 +9,9 @@ local GetItemInfoByIndex = C_BlackMarket.GetItemInfoByIndex
 local GetItemInfoInstant = C_Item.GetItemInfoInstant
 local GetServerTime = GetServerTime
 
+---------------------------------------------------------------------
+-- scan and cache
+---------------------------------------------------------------------
 local function BLACK_MARKET_ITEM_UPDATE()
     local numItems = GetNumItems()
     if not numItems or numItems == 0 then
@@ -87,6 +90,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
         BFBM.UpdateDataForSend()
         BFBM.SendData("channel")
         BFBM.SendData("guild")
+        -- favorites
+        BFBM.AlertFavorites(AF.player.realm, BFBM.currentServerData.items)
     end
 end
 BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))
@@ -163,10 +168,12 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
             items = items,
             lastUpdate = lastUpdate,
         }
+        BFBM.AlertFavorites(server, items)
     elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
         print("UpdateLocalCache: UPDATE USING RECEIVED DATA")
         BFBM_DB.data.servers[server].items = items
         BFBM_DB.data.servers[server].lastUpdate = lastUpdate
+        BFBM.AlertFavorites(server, items)
     else
         print("UpdateLocalCache: RECEIVED DATA OLDER THAN LOCAL")
         return
@@ -181,4 +188,15 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
     BFBM.UpdateHistoryItems()
     -- send
     BFBM.UpdateDataForSend()
+end
+
+---------------------------------------------------------------------
+-- alert favorites
+---------------------------------------------------------------------
+function BFBM.AlertFavorites(server, items)
+    for _, t in pairs(items) do
+        if BFBM_DB.data.favorites[itemID] then
+
+        end
+    end
 end
