@@ -91,6 +91,15 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
             }
         end
 
+        -- alert
+        if type(BFBM_DB.alert) ~= "table" then BFBM_DB.alert = {} end
+        if not AF.IsToday(BFBM_DB.alert.lastUpdate) then
+            BFBM_DB.alert.items = {
+                -- [itemID] = numBids,
+            }
+            BFBM_DB.alert.lastUpdate = GetServerTime()
+        end
+
         -- NOTE: cache is only for CN servers
         BFBM_DataUpload = nil
         if AF.portal == "CN" and type(BFBM_DataUpload) ~= "table" then

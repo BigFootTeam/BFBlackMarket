@@ -302,7 +302,11 @@ LoadItems = function(server)
 
     -- last update
     if data.lastUpdate then
-        lastUpdateText:SetText(AF.FormatTime(data.lastUpdate))
+        if AF.IsToday(data.lastUpdate) then
+            lastUpdateText:SetText(AF.FormatTime(data.lastUpdate))
+        else
+            lastUpdateText:SetText(AF.FormatRelativeTime(data.lastUpdate))
+        end
     else
         lastUpdateText:SetText(L["No data"])
     end

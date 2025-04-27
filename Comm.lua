@@ -117,11 +117,14 @@ local function ShouldProcess(server, lastUpdate, items)
         -- check if data changed
         local old = {}
         for itemID, t in pairs(BFBM_DB.data.servers[server].items) do
-            old[itemID] = t.numBids
+            old[itemID] = {
+                numBids = t.numBids,
+                timeLeft = t.timeLeft,
+            }
         end
 
         for itemID, t in pairs(items) do
-            if not old[itemID] or old[itemID] ~= t.numBids then
+            if not old[itemID] or old[itemID].numBids ~= t.numBids or old[itemID].timeLeft ~= t.timeLeft then
                 -- print("ShouldProcess: true, newer data")
                 return true
             end

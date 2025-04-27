@@ -198,7 +198,8 @@ function BFBM.AlertFavorites(server, items)
     if not BFBM_DB.config.priceChangeAlerts then return end
 
     for itemID, t in pairs(items) do
-        if BFBM_DB.favorites[itemID] then
+        if BFBM_DB.favorites[itemID] and BFBM_DB.alert.items[itemID] ~= t.numBids then
+            BFBM_DB.alert.items[itemID] = t.numBids
             local currBid = AF.FormatMoney(t.currBid, nil, true, true)
             local text = L["%s is on the Black Market!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
             AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, itemID)
