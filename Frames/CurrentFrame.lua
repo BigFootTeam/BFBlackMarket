@@ -91,6 +91,16 @@ local function Pane_OnEnter(self)
         AF.Tooltip2:SetPoint("TOPLEFT", self, "TOPRIGHT", 5, 0)
         AF.Tooltip2:AddLine(AF.WrapTextInColor(_G[TIME_LEFT:format(self.t.timeLeft)], "accent"))
         AF.Tooltip2:AddLine(AF.GetIconString("Clock_Round") .. " " .. AF.WrapTextInColor(_G[TIME_LEFT_DETAIL:format(self.t.timeLeft)], GetTimeLeftColor(self.t.timeLeft)))
+
+        local servers = BFBM.GetOnSaleServers(self.itemID)
+        if #servers > 1 then
+            AF.Tooltip2:AddLine(" ")
+            AF.Tooltip2:AddLine(AF.WrapTextInColor(L["Servers"], "accent"))
+            for i, server in ipairs(servers) do
+                AF.Tooltip2:AddLine(server, 1, 1, 1)
+            end
+        end
+
         AF.Tooltip2:Show()
     end
 

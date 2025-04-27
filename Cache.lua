@@ -209,8 +209,18 @@ function BFBM.AlertFavorites(server, items)
         end
     end
 end
+
+---------------------------------------------------------------------
+-- get on sale servers for item
+---------------------------------------------------------------------
+function BFBM.GetOnSaleServers(itemID)
+    local servers = {}
+    for server, t in pairs(BFBM_DB.data.servers) do
+        if AF.IsToday(t.lastUpdate) and t.items[itemID] then
+            tinsert(servers, server)
         end
     end
+    return servers
 end
 
 ---------------------------------------------------------------------
