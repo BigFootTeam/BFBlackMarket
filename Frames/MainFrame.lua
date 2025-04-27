@@ -24,6 +24,7 @@ local function InitFrameWidgets()
 
     -- switch
     local switch = AF.CreateSwitch(mainFrame, 280, 20)
+    mainFrame.switch = switch
     AF.SetPoint(switch, "TOPLEFT", mainFrame, "TOPLEFT", 10, -10)
     switch:SetLabels({
         {

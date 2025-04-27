@@ -1,5 +1,6 @@
 ---@class BFBM
 local BFBM = select(2, ...)
+local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
 
@@ -205,8 +206,10 @@ end
 ---------------------------------------------------------------------
 function BFBM.AlertFavorites(server, items)
     for _, t in pairs(items) do
-        if BFBM_DB.data.favorites[itemID] then
-
+        if BFBM_DB.favorites[t.itemID] then
+            local currBid = AF.FormatMoney(t.currBid == 0 and t.minBid or t.currBid, nil, true, true)
+            local text = L["%s is on the Black Market!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
+            AF.ShowConfirmPopup(text, nil, false, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, t.itemID)
         end
     end
 end

@@ -321,6 +321,29 @@ function BFBM.UpdateCurrentItems(server, force)
 end
 
 ---------------------------------------------------------------------
+-- open currentFrame
+---------------------------------------------------------------------
+function BFBM.OpenCurrentFrame(_, _, server, itemID)
+    if not (server and itemID) then return end
+
+    if not BFBMMainFrame:IsShown() then
+        BFBM.ShowMainFrame()
+    end
+    BFBMMainFrame.switch:SetSelectedValue("current")
+
+    serverDropdown:SetSelectedValue(server)
+    selectedServer = server
+    LoadItems(server)
+
+    for i, t in pairs(itemList.widgets) do
+        if t.t.itemID == itemID then
+            itemList:SetScroll(i)
+            break
+        end
+    end
+end
+
+---------------------------------------------------------------------
 -- show
 ---------------------------------------------------------------------
 AF.RegisterCallback("BFBM_ShowFrame", function(which)
