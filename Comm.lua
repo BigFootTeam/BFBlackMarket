@@ -101,7 +101,12 @@ local function OnDataProcessFinish(_, data)
     data._temp = nil
 
     -- texplore(data)
-    BFBM.UpdateLocalCache(data.server, data.lastUpdate, data.items)
+    local server = data.server
+    if AF.IsConnectedRealm(server) then
+        -- NOTE: if connected realm, change to current server
+        server = AF.player.realm
+    end
+    BFBM.UpdateLocalCache(server, data.lastUpdate, data.items)
 end
 
 local itemLoadExecutor = AF.BuildItemLoadExecutor(FillItemData, nil, OnDataProcessFinish)

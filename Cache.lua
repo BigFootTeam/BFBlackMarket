@@ -92,6 +92,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
         BFBM.SendData("guild")
         -- favorites
         BFBM.AlertFavorites(AF.player.realm, BFBM.currentServerData.items)
+        -- CN data
+        BFBM.UpdateCNDataUpload(AF.player.realm, BFBM.currentServerData.lastUpdate, BFBM.currentServerData.items)
     end
 end
 BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))
@@ -163,19 +165,27 @@ end
 function BFBM.UpdateLocalCache(server, lastUpdate, items)
     -- update BFBM_DB.data.servers
     if not BFBM_DB.data.servers[server] then
-        print("UpdateLocalCache: SAVE RECEIVED DATA")
+        -- print("UpdateLocalCache: SAVE RECEIVED DATA")
         BFBM_DB.data.servers[server] = {
             items = items,
             lastUpdate = lastUpdate,
         }
+        -- favorites
         BFBM.AlertFavorites(server, items)
+        -- CN data
+        BFBM.UpdateCNDataUpload(server, lastUpdate, items)
+
     elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
-        print("UpdateLocalCache: UPDATE USING RECEIVED DATA")
+        -- print("UpdateLocalCache: UPDATE USING RECEIVED DATA")
         BFBM_DB.data.servers[server].items = items
         BFBM_DB.data.servers[server].lastUpdate = lastUpdate
+        -- favorites
         BFBM.AlertFavorites(server, items)
+        -- CN data
+        BFBM.UpdateCNDataUpload(server, lastUpdate, items)
+
     else
-        print("UpdateLocalCache: RECEIVED DATA OLDER THAN LOCAL")
+        -- print("UpdateLocalCache: RECEIVED DATA OLDER THAN LOCAL")
         return
     end
 
@@ -198,5 +208,32 @@ function BFBM.AlertFavorites(server, items)
         if BFBM_DB.data.favorites[itemID] then
 
         end
+    end
+end
+
+---------------------------------------------------------------------
+-- data for upload (CN only)
+---------------------------------------------------------------------
+function BFBM.UpdateCNDataUpload(server, lastUpdate, items)
+    if type(BFBM_CNDataUpload) ~= "table" then return end
+    if server ~= AF.player.realm then return end -- only current server or connected realms
+
+    BFBM_CNDataUpload = {
+        Server = server,
+        LastUpdate = lastUpdate,
+        Items = {},
+    }
+
+    for _, t in pairs(items) do
+        tinsert(BFBM_CNDataUpload.Items, {
+            ID = t.itemID,
+            Name = t.name,
+            Type = t.itemType,
+            Quality = t.quality,
+            IconFileDataID = t.texture,
+            CurrentBid = t.currBid,
+            NumBidsToday = t.numBids,
+            TimeLeft = t.timeLeft,
+        })
     end
 end
