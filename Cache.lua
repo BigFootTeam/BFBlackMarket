@@ -93,7 +93,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
         -- favorites
         BFBM.AlertFavorites(AF.player.realm, BFBM.currentServerData.items)
         -- CN data
-        BFBM.UpdateCNDataUpload(AF.player.realm, BFBM.currentServerData.lastUpdate, BFBM.currentServerData.items)
+        BFBM.UpdateDataUpload(AF.player.realm, BFBM.currentServerData.lastUpdate, BFBM.currentServerData.items)
     end
 end
 BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))
@@ -173,7 +173,7 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
         -- favorites
         BFBM.AlertFavorites(server, items)
         -- CN data
-        BFBM.UpdateCNDataUpload(server, lastUpdate, items)
+        BFBM.UpdateDataUpload(server, lastUpdate, items)
 
     elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
         -- print("UpdateLocalCache: UPDATE USING RECEIVED DATA")
@@ -182,7 +182,7 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
         -- favorites
         BFBM.AlertFavorites(server, items)
         -- CN data
-        BFBM.UpdateCNDataUpload(server, lastUpdate, items)
+        BFBM.UpdateDataUpload(server, lastUpdate, items)
 
     else
         -- print("UpdateLocalCache: RECEIVED DATA OLDER THAN LOCAL")
@@ -212,20 +212,20 @@ function BFBM.AlertFavorites(server, items)
 end
 
 ---------------------------------------------------------------------
--- data for upload (CN only)
+-- data for upload
 ---------------------------------------------------------------------
-function BFBM.UpdateCNDataUpload(server, lastUpdate, items)
-    if type(BFBM_CNDataUpload) ~= "table" then return end
+function BFBM.UpdateDataUpload(server, lastUpdate, items)
+    if type(BFBM_DataUpload) ~= "table" then return end
     if server ~= AF.player.realm then return end -- only current server or connected realms
 
-    BFBM_CNDataUpload = {
+    BFBM_DataUpload = {
         Server = server,
         LastUpdate = lastUpdate,
         Items = {},
     }
 
     for _, t in pairs(items) do
-        tinsert(BFBM_CNDataUpload.Items, {
+        tinsert(BFBM_DataUpload.Items, {
             ID = t.itemID,
             Name = t.name,
             Type = t.itemType,

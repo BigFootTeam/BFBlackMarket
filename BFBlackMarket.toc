@@ -4,7 +4,7 @@
 ## Version: r1
 ## Author: enderneko (BigFootTeam)
 ## Dependencies: AbstractFramework
-## SavedVariables: BFBM_DB,BFBM_CNDataUpload
+## SavedVariables: BFBM_DB,BFBM_DataUpload
 ## AddonCompartmentFunc:
 ## IconTexture: Interface\AddOns\BFBlackMarket\BFBM
 

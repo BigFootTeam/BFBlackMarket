@@ -94,9 +94,9 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         end
 
         -- NOTE: cache is only for CN servers
-        BFBM_CNDataUpload = nil
-        if AF.portal == "CN" and type(BFBM_CNDataUpload) ~= "table" then
-            BFBM_CNDataUpload = {}
+        BFBM_DataUpload = nil
+        if AF.portal == "CN" and type(BFBM_DataUpload) ~= "table" then
+            BFBM_DataUpload = {}
         end
     end
 end)
