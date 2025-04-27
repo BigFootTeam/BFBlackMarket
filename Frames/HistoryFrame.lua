@@ -103,7 +103,7 @@ local function Pane_OnEnter(self)
     end
     AF.Tooltip:SetOwner(self, "ANCHOR_NONE")
     AF.Tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
-    AF.Tooltip:SetItem(self.id)
+    AF.Tooltip:SetItem(self.itemID)
 
     self.favorite:Show()
 end
@@ -113,7 +113,7 @@ local function Pane_OnLeave(self)
 
     AF.Tooltip:Hide()
 
-    if not self:IsMouseOver() and not BFBM_DB.favorites[self.id] then
+    if not self:IsMouseOver() and not BFBM_DB.favorites[self.itemID] then
         self.favorite:Hide()
     end
 end
@@ -154,10 +154,10 @@ end
 
 local function Pane_Load(self, id, t)
     -- texplore(t)
-    self.id = id
+    self.itemID = id
     self.t = t
 
-    self.itemID:SetText("ID: " .. id)
+    self.id:SetText("ID: " .. id)
     self.icon:SetTexture(t.texture)
     self.name:SetText(t.name)
 
@@ -227,13 +227,13 @@ local itemPanePool = AF.CreateObjectPool(function()
     pane.favorite:HookOnEnter(pane:GetOnEnter())
     pane.favorite:HookOnLeave(pane:GetOnLeave())
     pane.favorite:SetOnClick(function()
-        if BFBM_DB.favorites[pane.id] then
-            BFBM_DB.favorites[pane.id] = nil
+        if BFBM_DB.favorites[pane.itemID] then
+            BFBM_DB.favorites[pane.itemID] = nil
             pane.favorite:SetIcon(AF.GetIcon("Star"))
             pane.favorite:SetColor("darkgray")
             pane.favorite:SetHoverColor("white")
         else
-            BFBM_DB.favorites[pane.id] = true
+            BFBM_DB.favorites[pane.itemID] = true
             pane.favorite:SetIcon(AF.GetIcon("Star_Filled"))
             pane.favorite:SetColor(AF.GetColorTable("gold", 0.7))
             pane.favorite:SetHoverColor("gold")
@@ -256,9 +256,9 @@ local itemPanePool = AF.CreateObjectPool(function()
     AF.SetPoint(pane.avgBid, "BOTTOMLEFT", pane.iconBG, "BOTTOMRIGHT", 5, 0)
 
     -- itemID
-    pane.itemID = AF.CreateFontString(pane)
-    pane.itemID:SetColor("gray")
-    AF.SetPoint(pane.itemID, "BOTTOMRIGHT", -5, 5)
+    pane.id = AF.CreateFontString(pane)
+    pane.id:SetColor("gray")
+    AF.SetPoint(pane.id, "BOTTOMRIGHT", -5, 5)
 
     -- function
     pane.Load = Pane_Load
@@ -271,8 +271,8 @@ end)
 ---------------------------------------------------------------------
 local function Comparator(a, b)
     -- favorite
-    if BFBM_DB.favorites[a.id] ~= BFBM_DB.favorites[b.id] then
-        return BFBM_DB.favorites[a.id]
+    if BFBM_DB.favorites[a.itemID] ~= BFBM_DB.favorites[b.itemID] then
+        return BFBM_DB.favorites[a.itemID]
     end
 
     -- avgBid

@@ -24,17 +24,16 @@ function BFBM.UpdateDataForSend()
         items = {},
     }
 
-    for _, t in pairs(BFBM.currentServerData.items) do
-        tinsert(data.items, {
-            itemID = t.itemID,
+    for itemID, t in pairs(BFBM.currentServerData.items) do
+        data.items[itemID] = {
             quantity = t.quantity,
-            minBid = t.minBid,
             currBid = t.currBid,
             numBids = t.numBids,
             timeLeft = t.timeLeft,
-        })
+        }
     end
 
+    -- texplore(data)
     BFBM.dataForSend = AF.Serialize(data, true)
 end
 
@@ -89,9 +88,9 @@ end
 
 local function OnDataProcessFinish(_, data)
     if not data._temp then return end
-    for _, t in pairs(data.items) do
-        if data._temp[t.itemID] then
-            local temp = data._temp[t.itemID]
+    for itemID, t in pairs(data.items) do
+        if data._temp[itemID] then
+            local temp = data._temp[itemID]
             t.name = temp.name
             t.link = temp.link
             t.texture = temp.texture
@@ -102,18 +101,33 @@ local function OnDataProcessFinish(_, data)
     data._temp = nil
 
     -- texplore(data)
-    local server = data.server
-    if AF.IsConnectedRealm(server) then
-        -- NOTE: if connected realm, change to current server
-        server = AF.player.realm
-    end
-    BFBM.UpdateLocalCache(server, data.lastUpdate, data.items)
+    BFBM.UpdateLocalCache(data.server, data.lastUpdate, data.items)
 end
 
 local itemLoadExecutor = AF.BuildItemLoadExecutor(FillItemData, nil, OnDataProcessFinish)
 
-local function ShouldProcess(server, lastUpdate)
-    return not BFBM_DB.data.servers[server] or not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate
+local function ShouldProcess(server, lastUpdate, items)
+    if not BFBM_DB.data.servers[server] then
+        -- print("ShouldProcess: true, no local server data")
+        return true
+    elseif not BFBM_DB.data.servers[server].lastUpdate then
+        -- print("ShouldProcess: true, no local lastUpdate")
+        return true
+    elseif BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
+        -- check if data changed
+        local old = {}
+        for itemID, t in pairs(BFBM_DB.data.servers[server].items) do
+            old[itemID] = t.numBids
+        end
+
+        for itemID, t in pairs(items) do
+            if not old[itemID] or old[itemID] ~= t.numBids then
+                -- print("ShouldProcess: true, newer data")
+                return true
+            end
+        end
+    end
+    -- print("ShouldProcess: false, older data")
 end
 
 local function DataReceived(data, sender)
@@ -123,10 +137,16 @@ local function DataReceived(data, sender)
     if type(data.version) ~= "number" or data.version < BFBM.minVersion then return end --version
     if type(data.server) ~= "string" then return end -- server
     if type(data.lastUpdate) ~= "number" or not AF.IsToday(data.lastUpdate) then return end -- today
-    if not ShouldProcess(data.server, data.lastUpdate) then return end -- process
-    if type(data.items) ~= "table" or #data.items == 0 then return end -- items
+    if type(data.items) ~= "table" or AF.IsEmpty(data.items) then return end -- items
 
-    itemLoadExecutor:Submit(AF.ExtractSubTableValues(data.items, "itemID"), data)
+    if AF.IsConnectedRealm(data.server) then
+        -- NOTE: if connected realm, change to current server
+        data.server = AF.player.realm
+    end
+
+    if not ShouldProcess(data.server, data.lastUpdate, data.items) then return end -- process
+
+    itemLoadExecutor:Submit(AF.GetKeys(data.items), data)
 end
 
 ---------------------------------------------------------------------

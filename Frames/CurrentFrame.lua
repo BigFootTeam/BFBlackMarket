@@ -84,7 +84,7 @@ local function Pane_OnEnter(self)
     end
     AF.Tooltip:SetOwner(self, "ANCHOR_NONE")
     AF.Tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -5, 0)
-    AF.Tooltip:SetItem(self.t.itemID)
+    AF.Tooltip:SetItem(self.itemID)
 
     if self.t.timeLeft then
         AF.Tooltip2:SetOwner(self, "ANCHOR_NONE")
@@ -103,13 +103,14 @@ local function Pane_OnLeave(self)
     AF.Tooltip:Hide()
     AF.Tooltip2:Hide()
 
-    if not self:IsMouseOver() and not BFBM_DB.favorites[self.t.itemID] then
+    if not self:IsMouseOver() and not BFBM_DB.favorites[self.itemID] then
         self.favorite:Hide()
     end
 end
 
-local function Pane_Load(self, t)
+local function Pane_Load(self, itemID, t)
     -- texplore(t)
+    self.itemID = itemID
     self.t = t
 
     self.icon:SetTexture(t.texture)
@@ -117,7 +118,7 @@ local function Pane_Load(self, t)
     self.type:SetText(t.itemType)
 
     -- bid
-    local currBid = AF.FormatMoney(t.currBid == 0 and t.minBid or t.currBid, nil, true, true)
+    local currBid = AF.FormatMoney(t.currBid, nil, true, true)
     local numBids = AF.WrapTextInColor(t.numBids == 0 and "" or (t.numBids .. " " .. BIDS), "gray")
     self.bid:SetText((t.currBid >= BFBM.MAX_BID and AF.WrapTextInColor(currBid, "firebrick") or currBid) .. " " .. numBids)
 
@@ -139,7 +140,7 @@ local function Pane_Load(self, t)
     end
 
     -- favorite
-    if BFBM_DB.favorites[t.itemID] then
+    if BFBM_DB.favorites[itemID] then
         self.favorite:SetIcon(AF.GetIcon("Star_Filled"))
         self.favorite:SetColor(AF.GetColorTable("gold", 0.7))
         self.favorite:SetHoverColor("gold")
@@ -194,13 +195,13 @@ local itemPanePool = AF.CreateObjectPool(function()
     pane.favorite:HookOnEnter(pane:GetOnEnter())
     pane.favorite:HookOnLeave(pane:GetOnLeave())
     pane.favorite:SetOnClick(function()
-        if BFBM_DB.favorites[pane.t.itemID] then
-            BFBM_DB.favorites[pane.t.itemID] = nil
+        if BFBM_DB.favorites[pane.itemID] then
+            BFBM_DB.favorites[pane.itemID] = nil
             pane.favorite:SetIcon(AF.GetIcon("Star"))
             pane.favorite:SetColor("darkgray")
             pane.favorite:SetHoverColor("white")
         else
-            BFBM_DB.favorites[pane.t.itemID] = true
+            BFBM_DB.favorites[pane.itemID] = true
             pane.favorite:SetIcon(AF.GetIcon("Star_Filled"))
             pane.favorite:SetColor(AF.GetColorTable("gold", 0.7))
             pane.favorite:SetHoverColor("gold")
@@ -241,8 +242,8 @@ end)
 ---------------------------------------------------------------------
 local function Comparator(a, b)
     -- favorite
-    if BFBM_DB.favorites[a.t.itemID] ~= BFBM_DB.favorites[b.t.itemID] then
-        return BFBM_DB.favorites[a.t.itemID]
+    if BFBM_DB.favorites[a.itemID] ~= BFBM_DB.favorites[b.itemID] then
+        return BFBM_DB.favorites[a.itemID]
     end
 
     -- time left
@@ -263,11 +264,6 @@ local function Comparator(a, b)
     -- current bid
     if a.t.currBid ~= b.t.currBid then
         return a.t.currBid > b.t.currBid
-    end
-
-    -- min bid
-    if a.t.minBid ~= b.t.minBid then
-        return a.t.minBid > b.t.minBid
     end
 
     -- item name
@@ -292,9 +288,9 @@ LoadItems = function(server)
     itemPanePool:ReleaseAll()
 
     -- load
-    for _, t in pairs(data.items) do
+    for itemID, t in pairs(data.items) do
         local pane = itemPanePool:Acquire()
-        pane:Load(t)
+        pane:Load(itemID, t)
     end
 
     -- sort
@@ -305,7 +301,11 @@ LoadItems = function(server)
     itemList:SetWidgets(widgets)
 
     -- last update
-    lastUpdateText:SetText(AF.FormatTime(data.lastUpdate))
+    if data.lastUpdate then
+        lastUpdateText:SetText(AF.FormatTime(data.lastUpdate))
+    else
+        lastUpdateText:SetText(L["No data"])
+    end
 end
 
 function BFBM.UpdateCurrentItems(server, force)
@@ -335,8 +335,8 @@ function BFBM.OpenCurrentFrame(_, _, server, itemID)
     selectedServer = server
     LoadItems(server)
 
-    for i, t in pairs(itemList.widgets) do
-        if t.t.itemID == itemID then
+    for i, pane in pairs(itemList.widgets) do
+        if pane.itemID == itemID then
             itemList:SetScroll(i)
             break
         end

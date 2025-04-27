@@ -21,8 +21,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
 
     -- old
     local lastScanned = {}
-    for _, t in pairs(BFBM.currentServerData.items) do
-        lastScanned[t.itemID] = {
+    for itemID, t in pairs(BFBM.currentServerData.items) do
+        lastScanned[itemID] = {
             numBids = t.numBids,
             timeLeft = t.timeLeft,
         }
@@ -49,8 +49,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
         local itemID = GetItemInfoInstant(link)
 
         -- update BFBM_DB.data
-        tinsert(BFBM.currentServerData.items, {
-            itemID = itemID,
+        BFBM.currentServerData.items[itemID] = {
+            -- itemID = itemID,
             name = name,
             texture = texture,
             quantity = quantity,
@@ -60,16 +60,16 @@ local function BLACK_MARKET_ITEM_UPDATE()
             -- level = level,
             -- levelType = levelType,
             -- sellerName = sellerName,
-            minBid = minBid,
+            -- minBid = minBid,
             -- minIncrement = minIncrement,
-            currBid = currBid,
+            currBid = currBid == 0 and minBid or currBid,
             -- youHaveHighBid = youHaveHighBid,
             numBids = numBids,
             timeLeft = timeLeft,
             link = link,
             -- marketID = marketID,
             -- isHot = marketID == hotMarketID,
-        })
+        }
 
         -- check if data changed
         if not lastScanned[itemID] or lastScanned[itemID].numBids ~= numBids or lastScanned[itemID].timeLeft ~= timeLeft then
@@ -105,14 +105,12 @@ BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_M
 function BFBM.UpdateHistoryCache(items, lastUpdate)
     lastUpdate = lastUpdate or GetServerTime()
 
-    for _, t in pairs(items) do
-        local itemID = t.itemID
+    for itemID, t in pairs(items) do
         local name = t.name
         local texture = t.texture
         local link = t.link
         local quality = t.quality
         local itemType = t.itemType
-        local minBid = t.minBid
         local currBid = t.currBid
         local numBids = t.numBids
         local timeLeft = t.timeLeft
@@ -142,11 +140,6 @@ function BFBM.UpdateHistoryCache(items, lastUpdate)
             }
         end
 
-        -- fix 0 bid
-        if currBid == 0 then
-            currBid = minBid
-        end
-
         -- item history bids
         if not BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] then
             BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] = currBid
@@ -171,39 +164,12 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
             items = items,
             lastUpdate = lastUpdate,
         }
-        -- favorites
-        BFBM.AlertFavorites(server, items)
-        -- CN data
-        BFBM.UpdateDataUpload(server, lastUpdate, items)
 
     elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
-        -- check if data changed
-        local dataChanged
-        local old = {}
-
-        for _, t in pairs(BFBM_DB.data.servers[server].items) do
-            old[t.itemID] = t.numBids
-        end
-
-        for _, t in pairs(items) do
-            if not old[t.itemID] or old[t.itemID] ~= t.numBids then
-                dataChanged = true
-                break
-            end
-        end
-
-        if not dataChanged then
-            -- print("UpdateLocalCache: RECEIVED DATA NOT CHANGED")
-            return
-        end
         -- print("UpdateLocalCache: UPDATE USING RECEIVED DATA")
 
         BFBM_DB.data.servers[server].items = items
         BFBM_DB.data.servers[server].lastUpdate = lastUpdate
-        -- favorites
-        BFBM.AlertFavorites(server, items)
-        -- CN data
-        BFBM.UpdateDataUpload(server, lastUpdate, items)
 
     else
         -- print("UpdateLocalCache: RECEIVED DATA OLDER THAN LOCAL")
@@ -219,6 +185,10 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
     BFBM.UpdateHistoryItems()
     -- send
     BFBM.UpdateDataForSend()
+    -- favorites
+    BFBM.AlertFavorites(server, items)
+    -- CN data
+    BFBM.UpdateDataUpload(server, lastUpdate, items)
 end
 
 ---------------------------------------------------------------------
@@ -227,11 +197,14 @@ end
 function BFBM.AlertFavorites(server, items)
     if not BFBM_DB.config.priceChangeAlerts then return end
 
-    for _, t in pairs(items) do
-        if BFBM_DB.favorites[t.itemID] then
-            local currBid = AF.FormatMoney(t.currBid == 0 and t.minBid or t.currBid, nil, true, true)
+    for itemID, t in pairs(items) do
+        if BFBM_DB.favorites[itemID] then
+            local currBid = AF.FormatMoney(t.currBid, nil, true, true)
             local text = L["%s is on the Black Market!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
-            AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, t.itemID)
+            AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, itemID)
+        end
+    end
+end
         end
     end
 end
@@ -248,15 +221,15 @@ function BFBM.UpdateDataUpload(server, lastUpdate, items)
         Items = {},
     }
 
-    for _, t in pairs(items) do
+    for itemID, t in pairs(items) do
         tinsert(BFBM_DataUpload[server].Items, {
-            ID = t.itemID,
+            ID = itemID,
             Name = t.name,
             Type = t.itemType,
             Quality = t.quality,
             IconFileDataID = t.texture,
             CurrentBid = t.currBid,
-            NumBidsToday = t.numBids,
+            NumBids = t.numBids,
             TimeLeft = t.timeLeft,
         })
     end

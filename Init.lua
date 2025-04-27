@@ -51,15 +51,13 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                 servers = {
                     -- [serverName] = {
                     --     items = {
-                    --         {
-                    --             itemID = (number),
+                    --         [itemID] = {
                     --             name = (string),
                     --             texture = (number),
                     --             link = (string),
                     --             quantity = (number),
                     --             quality = (number),
                     --             itemType = (string),
-                    --             minBid = (number),
                     --             currBid = (number),
                     --             numBids = (number),
                     --             timeLeft = (number),
