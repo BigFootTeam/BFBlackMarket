@@ -37,7 +37,7 @@ local function CreateConfigFrame()
         BFBM_DB.config.priceChangeAlerts = checked
     end)
     AF.SetTooltips(priceChangeAlertsCheckButton, "TOPLEFT", 0, 1,
-        L["Price change alerts"], L["Show notification popups when watched items change price"])
+        L["Price change alerts"], L["Show notification popups when watched items change price"], AF.L["Right Click the popup to dismiss"])
     AF.SetPoint(priceChangeAlertsCheckButton, "TOPLEFT", blockInstanceReceivingCheckButton, "BOTTOMLEFT", 0, -10)
 
     -- importExportPane

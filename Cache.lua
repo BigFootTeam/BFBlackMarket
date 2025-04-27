@@ -177,7 +177,27 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
         BFBM.UpdateDataUpload(server, lastUpdate, items)
 
     elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
+        -- check if data changed
+        local dataChanged
+        local old = {}
+
+        for _, t in pairs(BFBM_DB.data.servers[server].items) do
+            old[t.itemID] = t.numBids
+        end
+
+        for _, t in pairs(items) do
+            if not old[t.itemID] or old[t.itemID] ~= t.numBids then
+                dataChanged = true
+                break
+            end
+        end
+
+        if not dataChanged then
+            -- print("UpdateLocalCache: RECEIVED DATA NOT CHANGED")
+            return
+        end
         -- print("UpdateLocalCache: UPDATE USING RECEIVED DATA")
+
         BFBM_DB.data.servers[server].items = items
         BFBM_DB.data.servers[server].lastUpdate = lastUpdate
         -- favorites
@@ -205,11 +225,13 @@ end
 -- alert favorites
 ---------------------------------------------------------------------
 function BFBM.AlertFavorites(server, items)
+    if not BFBM_DB.config.priceChangeAlerts then return end
+
     for _, t in pairs(items) do
         if BFBM_DB.favorites[t.itemID] then
             local currBid = AF.FormatMoney(t.currBid == 0 and t.minBid or t.currBid, nil, true, true)
             local text = L["%s is on the Black Market!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
-            AF.ShowConfirmPopup(text, nil, false, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, t.itemID)
+            AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, t.itemID)
         end
     end
 end
@@ -219,16 +241,15 @@ end
 ---------------------------------------------------------------------
 function BFBM.UpdateDataUpload(server, lastUpdate, items)
     if type(BFBM_DataUpload) ~= "table" then return end
-    if server ~= AF.player.realm then return end -- only current server or connected realms
 
-    BFBM_DataUpload = {
+    BFBM_DataUpload[server] = {
         Server = server,
         LastUpdate = lastUpdate,
         Items = {},
     }
 
     for _, t in pairs(items) do
-        tinsert(BFBM_DataUpload.Items, {
+        tinsert(BFBM_DataUpload[server].Items, {
             ID = t.itemID,
             Name = t.name,
             Type = t.itemType,
