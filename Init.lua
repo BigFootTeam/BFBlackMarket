@@ -30,8 +30,8 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         if type(BFBM_DB.config) ~= "table" then
             BFBM_DB.config = {
                 scale = 1,
-                requireCtrlForItemTooltips = true,
-                noDataReceivingInInstance = true,
+                requireCtrlForItemTooltips = false,
+                noDataReceivingInInstance = false,
                 priceChangeAlerts = true,
             }
         end
