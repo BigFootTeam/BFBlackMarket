@@ -22,6 +22,7 @@ L["Add Item to Watchlist"] = "添加物品到关注列表"
 L["Item ID"] = "物品ID"
 L["No items found"] = "没有找到物品"
 L["items"] = "物品"
+L["Alt + Left Click to delete item"] = "Alt+左键点击以删除物品"
 
 -- config
 L["Hold Ctrl to show item tooltips"] = "按住Ctrl键显示物品鼠标提示"

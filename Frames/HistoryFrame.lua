@@ -88,8 +88,12 @@ local function CreateHistoryFrame()
     AF.SetPoint(itemList, "TOPRIGHT", addButton, "BOTTOMRIGHT", 0, -10)
 
     -- item count
+    local tips = AF.CreateTipsButton(historyFrame)
+    tips:SetPoint("BOTTOMRIGHT")
+    tips:SetTips(AF.L["Tips"], L["Alt + Left Click to delete item"])
+
     itemCount = AF.CreateFontString(historyFrame, nil, "gray")
-    itemCount:SetPoint("BOTTOMRIGHT")
+    itemCount:SetPoint("RIGHT", tips, "LEFT")
 end
 
 ---------------------------------------------------------------------
@@ -118,13 +122,20 @@ local function Pane_OnLeave(self)
     end
 end
 
-local function Pane_OnMouseUp(self)
+local function Pane_OnMouseUp(self, button)
     if IsControlKeyDown() then
         DressUpLink(self.t.link)
     elseif IsShiftKeyDown() then
         local editBox = ChatEdit_ChooseBoxForSend()
         if editBox:HasFocus() then
             editBox:Insert(self.t.link)
+        end
+    elseif IsAltKeyDown() then
+        if button == "LeftButton" then
+            BFBM_DB.data.items[self.itemID] = nil
+            BFBM_DB.favorites[self.itemID] = nil
+            AF.Fire("BFBM_ITEM_HISTORY_UPDATE", nil, nil, self.itemID)
+            LoadItems()
         end
     else
         BFBM.ShowDetailFrame(self.itemID)
