@@ -78,7 +78,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
     end
 
     -- update history
-    BFBM.UpdateHistoryCache(BFBM.currentServerData.items)
+    BFBM.UpdateHistoryCache(AF.player.realm, nil, BFBM.currentServerData.items)
 
     if dataChanged then
         -- NOTE: only update if data changed
@@ -102,7 +102,7 @@ BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_M
 ---------------------------------------------------------------------
 -- history
 ---------------------------------------------------------------------
-function BFBM.UpdateHistoryCache(items, lastUpdate)
+function BFBM.UpdateHistoryCache(server, lastUpdate, items)
     lastUpdate = lastUpdate or GetServerTime()
 
     for itemID, t in pairs(items) do
@@ -127,28 +127,36 @@ function BFBM.UpdateHistoryCache(items, lastUpdate)
         end
 
         -- item history server
-        if not BFBM_DB.data.items[itemID].history[AF.player.realm] then
-            BFBM_DB.data.items[itemID].history[AF.player.realm] = {}
+        if not BFBM_DB.data.items[itemID].history[server] then
+            BFBM_DB.data.items[itemID].history[server] = {}
         end
 
         -- item history date
         local day = AF.GetDateString(lastUpdate)
-        if not BFBM_DB.data.items[itemID].history[AF.player.realm][day] then
-            BFBM_DB.data.items[itemID].history[AF.player.realm][day] = {
+        if not BFBM_DB.data.items[itemID].history[server][day] then
+            BFBM_DB.data.items[itemID].history[server][day] = {
                 bids = {},
                 finalBid = nil,
             }
         end
 
+        local changed
+
         -- item history bids
-        if not BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] then
-            BFBM_DB.data.items[itemID].history[AF.player.realm][day].bids[numBids] = currBid
+        if not BFBM_DB.data.items[itemID].history[server][day].bids[numBids] then
+            BFBM_DB.data.items[itemID].history[server][day].bids[numBids] = currBid
             BFBM_DB.data.items[itemID].lastUpdate = lastUpdate
+            changed = true
         end
 
         -- item history final price
-        if currBid >= BFBM.MAX_BID or timeLeft == 0  then
-            BFBM_DB.data.items[itemID].history[AF.player.realm][day].finalBid = currBid
+        if not BFBM_DB.data.items[itemID].history[server][day].finalBid and (currBid >= BFBM.MAX_BID or timeLeft == 0) then
+            BFBM_DB.data.items[itemID].history[server][day].finalBid = currBid
+            changed = true
+        end
+
+        if changed then
+            AF.Fire("BFBM_ITEM_HISTORY_UPDATE", server, lastUpdate, itemID)
         end
     end
 end
@@ -177,7 +185,7 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
     end
 
     -- update BFBM_DB.data.items
-    BFBM.UpdateHistoryCache(items, lastUpdate)
+    BFBM.UpdateHistoryCache(server, lastUpdate, items)
 
     -- current
     BFBM.UpdateCurrentItems(server)
