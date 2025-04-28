@@ -226,6 +226,19 @@ end
 ---------------------------------------------------------------------
 -- data for upload
 ---------------------------------------------------------------------
+local function GetBigFootClientVersion(wowProjectID)
+    wowProjectID = wowProjectID or WOW_PROJECT_ID
+    if wowProjectID == WOW_PROJECT_MAINLINE then -- 正式服
+        return 0
+    elseif wowProjectID == WOW_PROJECT_CLASSIC then -- 经典60
+        return 1
+    elseif wowProjectID == WOW_PROJECT_WRATH_CLASSIC then -- 巫妖王
+        return 3
+    else -- 大灾变
+        return 2
+    end
+end
+
 function BFBM.UpdateDataUpload(server, lastUpdate, items)
     if type(BFBM_DataUpload) ~= "table" then return end
 
@@ -233,6 +246,7 @@ function BFBM.UpdateDataUpload(server, lastUpdate, items)
         Server = server,
         LastUpdate = lastUpdate,
         Items = {},
+        ClientVersion = GetBigFootClientVersion(),
     }
 
     for itemID, t in pairs(items) do
