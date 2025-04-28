@@ -128,7 +128,7 @@ end)
 ---------------------------------------------------------------------
 AF.RegisterTemporaryChannel(BFBM.channelName)
 AF.BlockChatConfigFrameInteractionForChannel(BFBM.channelName)
-AF.RegisterCallback("AF_JOIN_TEMP_CHANNEL", function(channelName, channelID)
+AF.RegisterCallback("AF_JOIN_TEMP_CHANNEL", function(_, channelName, channelID)
     if channelName == BFBM.channelName then
         BFBM.channelID = channelID
         BFBM.BroadcastVersion()

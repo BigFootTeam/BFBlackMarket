@@ -91,16 +91,6 @@ local function Pane_OnEnter(self)
         AF.Tooltip2:SetPoint("TOPLEFT", self, "TOPRIGHT", 5, 0)
         AF.Tooltip2:AddLine(AF.WrapTextInColor(_G[TIME_LEFT:format(self.t.timeLeft)], "accent"))
         AF.Tooltip2:AddLine(AF.GetIconString("Clock_Round") .. " " .. AF.WrapTextInColor(_G[TIME_LEFT_DETAIL:format(self.t.timeLeft)], GetTimeLeftColor(self.t.timeLeft)))
-
-        local servers = BFBM.GetOnSaleServers(self.itemID)
-        if #servers > 1 then
-            AF.Tooltip2:AddLine(" ")
-            AF.Tooltip2:AddLine(AF.WrapTextInColor(L["Servers"], "accent"))
-            for i, server in ipairs(servers) do
-                AF.Tooltip2:AddLine(server, 1, 1, 1)
-            end
-        end
-
         AF.Tooltip2:Show()
     end
 
@@ -115,6 +105,19 @@ local function Pane_OnLeave(self)
 
     if not self:IsMouseOver() and not BFBM_DB.favorites[self.itemID] then
         self.favorite:Hide()
+    end
+end
+
+local function Pane_OnMouseUp(self)
+    if IsControlKeyDown() then
+        DressUpLink(self.t.link)
+    elseif IsShiftKeyDown() then
+        local editBox = ChatEdit_ChooseBoxForSend()
+        if editBox:HasFocus() then
+            editBox:Insert(self.t.link)
+        end
+    else
+        BFBM.ShowDetailFrame(self.itemID)
     end
 end
 
@@ -172,16 +175,7 @@ local itemPanePool = AF.CreateObjectPool(function()
     local pane = AF.CreateBorderedFrame(itemList.slotFrame, nil, nil, nil, "sheet_normal")
     pane:SetOnEnter(Pane_OnEnter)
     pane:SetOnLeave(Pane_OnLeave)
-    pane:SetOnMouseUp(function()
-        if IsControlKeyDown() then
-            DressUpLink(pane.t.link)
-        elseif IsShiftKeyDown() then
-            local editBox = ChatEdit_ChooseBoxForSend()
-            if editBox:HasFocus() then
-                editBox:Insert(pane.t.link)
-            end
-        end
-    end)
+    pane:SetOnMouseUp(Pane_OnMouseUp)
 
     -- iconBG
     pane.iconBG = AF.CreateTexture(pane, AF.GetPlainTexture(), "black", "BORDER")
@@ -360,7 +354,7 @@ end
 ---------------------------------------------------------------------
 -- show
 ---------------------------------------------------------------------
-AF.RegisterCallback("BFBM_ShowFrame", function(which)
+AF.RegisterCallback("BFBM_ShowFrame", function(_, which)
     if which == "current" then
         if not currentFrame then
             CreateCurrentFrame()

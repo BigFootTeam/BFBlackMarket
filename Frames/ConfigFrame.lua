@@ -68,7 +68,7 @@ end
 ---------------------------------------------------------------------
 -- show
 ---------------------------------------------------------------------
-AF.RegisterCallback("BFBM_ShowFrame", function(which)
+AF.RegisterCallback("BFBM_ShowFrame", function(_, which)
     if which == "config" then
         if not configFrame then
             CreateConfigFrame()

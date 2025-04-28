@@ -118,6 +118,19 @@ local function Pane_OnLeave(self)
     end
 end
 
+local function Pane_OnMouseUp(self)
+    if IsControlKeyDown() then
+        DressUpLink(self.t.link)
+    elseif IsShiftKeyDown() then
+        local editBox = ChatEdit_ChooseBoxForSend()
+        if editBox:HasFocus() then
+            editBox:Insert(self.t.link)
+        end
+    else
+        BFBM.ShowDetailFrame(self.itemID)
+    end
+end
+
 local function CalcAvgBid(t)
     if t.lastAvgCalc == t.lastUpdate then
         return t.avgBid
@@ -199,16 +212,7 @@ local itemPanePool = AF.CreateObjectPool(function()
     local pane = AF.CreateBorderedFrame(itemList.slotFrame, nil, nil, nil, "sheet_normal")
     pane:SetOnEnter(Pane_OnEnter)
     pane:SetOnLeave(Pane_OnLeave)
-    pane:SetOnMouseUp(function()
-        if IsControlKeyDown() then
-            DressUpLink(pane.t.link)
-        elseif IsShiftKeyDown() then
-            local editBox = ChatEdit_ChooseBoxForSend()
-            if editBox:HasFocus() then
-                editBox:Insert(pane.t.link)
-            end
-        end
-    end)
+    pane:SetOnMouseUp(Pane_OnMouseUp)
 
     -- iconBG
     pane.iconBG = AF.CreateTexture(pane, AF.GetPlainTexture(), "black", "BORDER")
@@ -280,6 +284,11 @@ local function Comparator(a, b)
         return a.t.avgBid > b.t.avgBid
     end
 
+    -- last update
+    if a.t.lastUpdate ~= b.t.lastUpdate then
+        return a.t.lastUpdate > b.t.lastUpdate
+    end
+
     -- name
     if a.t.name ~= b.t.name then
         return a.t.name < b.t.name
@@ -328,7 +337,7 @@ end
 ---------------------------------------------------------------------
 -- show
 ---------------------------------------------------------------------
-AF.RegisterCallback("BFBM_ShowFrame", function(which)
+AF.RegisterCallback("BFBM_ShowFrame", function(_, which)
     if which == "history" then
         if not historyFrame then
             CreateHistoryFrame()
