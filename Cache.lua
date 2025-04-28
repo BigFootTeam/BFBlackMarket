@@ -4,6 +4,8 @@ local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
 
+local SEND_INTERVAL = 99
+
 local GetHotItem = C_BlackMarket.GetHotItem
 local GetNumItems = C_BlackMarket.GetNumItems
 local GetItemInfoByIndex = C_BlackMarket.GetItemInfoByIndex
@@ -13,6 +15,7 @@ local GetServerTime = GetServerTime
 ---------------------------------------------------------------------
 -- scan and cache
 ---------------------------------------------------------------------
+local lastSent
 local function BLACK_MARKET_ITEM_UPDATE()
     local numItems = GetNumItems()
     if not numItems or numItems == 0 then
@@ -80,7 +83,8 @@ local function BLACK_MARKET_ITEM_UPDATE()
     -- update history
     BFBM.UpdateHistoryCache(AF.player.realm, nil, BFBM.currentServerData.items)
 
-    if dataChanged then
+    if dataChanged or not lastSent or time() - lastSent >= SEND_INTERVAL then
+        lastSent = time()
         -- NOTE: only update if data changed
         BFBM.currentServerData.lastUpdate = GetServerTime()
         -- current
@@ -91,6 +95,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
         BFBM.UpdateDataForSend()
         BFBM.SendData("channel")
         BFBM.SendData("guild")
+        BFBM.SendData("group")
         -- favorites
         BFBM.AlertFavorites(AF.player.realm, BFBM.currentServerData.items)
         -- CN data
