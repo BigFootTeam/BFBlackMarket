@@ -22,3 +22,4 @@ Frames\CurrentFrame.lua
 Frames\HistoryFrame.lua
 Frames\ConfigFrame.lua
 Frames\DetailFrame.lua
+Frames\AboutFrame.lua

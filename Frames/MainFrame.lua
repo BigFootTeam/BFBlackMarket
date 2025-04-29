@@ -11,6 +11,12 @@ mainFrame:SetPoint("CENTER")
 -- init
 ---------------------------------------------------------------------
 local function InitFrameWidgets()
+    -- about
+    local aboutButton = AF.CreateButton(BFBMMainFrame.header, nil, "accent_hover", 20, 20)
+    AF.SetPoint(aboutButton, "BOTTOMRIGHT", BFBMMainFrame.header.closeBtn, "BOTTOMLEFT", 1, 0)
+    aboutButton:SetTexture(AF.GetIcon("Question"), {14, 14})
+    aboutButton:SetOnClick(BFBM.ToggleAboutFrame)
+
     -- slider
     local slider = AF.CreateSlider(mainFrame.header, nil, 50, 1, 2, 0.05)
     AF.SetPoint(slider, "LEFT", mainFrame.header, 5, 0)
