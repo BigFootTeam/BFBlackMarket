@@ -8,7 +8,7 @@ local GetItemInfo = C_Item.GetItemInfo
 local GetItemInfoInstant = C_Item.GetItemInfoInstant
 
 local historyFrame
-local searchBox, itemList, itemCount
+local searchBox, itemList, noDataText, itemCount
 local LoadItems
 local updateRequired
 
@@ -86,6 +86,11 @@ local function CreateHistoryFrame()
     itemList = AF.CreateScrollList(historyFrame, nil, 5, 5, 6, 40, 5)
     AF.SetPoint(itemList, "TOPLEFT", searchBox, "BOTTOMLEFT", 0, -10)
     AF.SetPoint(itemList, "TOPRIGHT", addButton, "BOTTOMRIGHT", 0, -10)
+
+    -- no data text
+    noDataText = AF.CreateFontString(itemList, AF.UpperEachWord(L["No data"]), "firebrick", "AF_FONT_TITLE")
+    noDataText:SetPoint("CENTER")
+    noDataText:Hide()
 
     -- item count
     local tips = AF.CreateTipsButton(historyFrame)
@@ -332,8 +337,10 @@ LoadItems = function()
     -- count
     if n == 0 then
         itemCount:SetText(L["No items found"])
+        noDataText:Show()
     else
         itemCount:SetText(n .. " " .. L["items"])
+        noDataText:Hide()
     end
 end
 

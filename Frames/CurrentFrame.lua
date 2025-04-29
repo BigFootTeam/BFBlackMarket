@@ -12,7 +12,7 @@ local IsControlKeyDown = IsControlKeyDown
 local IsShiftKeyDown = IsShiftKeyDown
 
 local currentFrame
-local serverDropdown, itemList, lastUpdateText
+local serverDropdown, itemList, noDataText, lastUpdateText
 local updateRequired, LoadItems
 local selectedServer
 
@@ -44,6 +44,11 @@ local function CreateCurrentFrame()
     itemList = AF.CreateScrollList(currentFrame, nil, 5, 5, 6, 40, 5)
     AF.SetPoint(itemList, "TOPLEFT", serverDropdown, "BOTTOMLEFT", 0, -10)
     AF.SetPoint(itemList, "TOPRIGHT", serverDropdown, "BOTTOMRIGHT", 0, -10)
+
+    -- no data text
+    noDataText = AF.CreateFontString(itemList, AF.UpperEachWord(L["No data"]), "firebrick", "AF_FONT_TITLE")
+    noDataText:SetPoint("CENTER")
+    noDataText:Hide()
 
     -- last update text
     local tips = AF.CreateTipsButton(currentFrame)
@@ -340,8 +345,10 @@ LoadItems = function(server)
         else
             lastUpdateText:SetText(AF.FormatRelativeTime(data.lastUpdate))
         end
+        noDataText:Hide()
     else
         lastUpdateText:SetText(L["No data"])
+        noDataText:Show()
     end
 end
 
