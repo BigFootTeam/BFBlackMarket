@@ -13,7 +13,7 @@ local IsShiftKeyDown = IsShiftKeyDown
 
 local currentFrame
 local serverDropdown, itemList, noDataText, lastUpdateText
-local updateRequired, LoadItems
+local updateRequired, LoadItems, LoadServerDropdown
 local selectedServer
 
 ---------------------------------------------------------------------
@@ -26,7 +26,8 @@ local function CreateCurrentFrame()
 
     currentFrame:SetOnShow(function()
         if updateRequired then
-            LoadItems()
+            LoadServerDropdown()
+            LoadItems(selectedServer)
         end
     end)
 
@@ -262,7 +263,7 @@ local function ServerComparator(a, b)
     return a[1] < b[1]
 end
 
-local function LoadServerDropdown()
+function LoadServerDropdown()
     local servers = {}
     local items = {}
 
@@ -353,6 +354,10 @@ LoadItems = function(server)
 end
 
 function BFBM.UpdateCurrentItems(server, force)
+    if currentFrame and currentFrame:IsShown() then
+        LoadServerDropdown()
+    end
+
     if selectedServer ~= server and not force then return end
 
     -- force
