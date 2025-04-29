@@ -209,6 +209,8 @@ function BFBM.UpdateLocalCache(server, lastUpdate, items)
     BFBM.UpdateDataForSend()
     -- favorites
     BFBM.AlertFavorites(server, items)
+    -- chat alerts
+    BFBM.ShowChatAlerts(server)
     -- CN data
     BFBM.UpdateDataUpload(server, lastUpdate, items)
 end
@@ -245,6 +247,20 @@ function BFBM.AlertFavorites(server, items)
             end
             BFBM_DB.alert.servers[server][itemID] = t.numBids
         end
+    end
+end
+
+---------------------------------------------------------------------
+-- chat alerts
+---------------------------------------------------------------------
+function BFBM.ShowChatAlerts(server)
+    if BFBM_DB.config.chatAlerts == "all" or (BFBM_DB.config.chatAlerts == "current" and AF.IsConnectedRealm(server)) then
+        if AF.IsConnectedRealm(server) then
+            server = AF.WrapTextInColor(server, "softlime")
+        else
+            server = AF.WrapTextInColor(server, "yellow_text")
+        end
+        AF.Print(L["%s data updated, check %s to view details!"]:format(server, AF.WrapTextInColor(L["BFBlackMarket"], "accent")))
     end
 end
 

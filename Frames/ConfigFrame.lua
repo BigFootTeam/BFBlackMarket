@@ -32,21 +32,38 @@ local function CreateConfigFrame()
     end)
     AF.SetPoint(blockInstanceReceivingCheckButton, "TOPLEFT", requireCtrlCheckButton, "BOTTOMLEFT", 0, -10)
 
-    -- priceChangeAlerts
-    local priceChangeAlertsCheckButton = AF.CreateCheckButton(optionsPane, L["Price change alerts"], function(checked)
-        BFBM_DB.config.priceChangeAlerts = checked
-    end)
-    AF.SetTooltips(priceChangeAlertsCheckButton, "TOPLEFT", 0, 1,
-        L["Price change alerts"], L["Show notification popups when watched items change price"], AF.L["Right Click the popup to dismiss"])
-    AF.SetPoint(priceChangeAlertsCheckButton, "TOPLEFT", blockInstanceReceivingCheckButton, "BOTTOMLEFT", 0, -10)
-
     -- autoWipe
     local autoWipeCheckButton = AF.CreateCheckButton(optionsPane, L["Auto wipe outdated server data"], function(checked)
         BFBM_DB.config.autoWipeOutdatedServerData = checked
     end)
     AF.SetTooltips(autoWipeCheckButton, "TOPLEFT", 0, 1,
         L["Auto wipe outdated server data"], L["Server history data will be preserved"])
-    AF.SetPoint(autoWipeCheckButton, "TOPLEFT", priceChangeAlertsCheckButton, "BOTTOMLEFT", 0, -10)
+    AF.SetPoint(autoWipeCheckButton, "TOPLEFT", blockInstanceReceivingCheckButton, "BOTTOMLEFT", 0, -10)
+
+    -- priceChangeAlerts
+    local priceChangeAlertsCheckButton = AF.CreateCheckButton(optionsPane, L["Price change alerts"], function(checked)
+        BFBM_DB.config.priceChangeAlerts = checked
+    end)
+    AF.SetTooltips(priceChangeAlertsCheckButton, "TOPLEFT", 0, 1,
+        L["Price change alerts"], L["Show notification popups when watched items change price"], AF.L["Right Click the popup to dismiss"])
+    AF.SetPoint(priceChangeAlertsCheckButton, "TOPLEFT", autoWipeCheckButton, "BOTTOMLEFT", 0, -10)
+
+    -- chat alerts
+    local chatAlertsDropdown = AF.CreateDropdown(optionsPane)
+    chatAlertsDropdown:SetLabel(L["Chat messages on BM changes"])
+    AF.SetPoint(chatAlertsDropdown, "TOPLEFT", priceChangeAlertsCheckButton, "BOTTOMLEFT", 0, -30)
+    AF.SetPoint(chatAlertsDropdown, "RIGHT")
+
+    chatAlertsDropdown:SetItems({
+        {text = L["Never"], value = "never"},
+        {text = L["Current Server Only"], value = "current"},
+        {text = L["All Servers"], value = "all"},
+    })
+
+    chatAlertsDropdown:SetOnClick(function(v)
+        BFBM_DB.config.chatAlerts = v
+    end)
+
 
     -- importExportPane
     local importExportPane = AF.CreateTitledPane(configFrame, AF.L["Import & Export"] .. AF.WrapTextInColor(" (WIP)", "gray"), nil, 50)
@@ -71,6 +88,7 @@ local function CreateConfigFrame()
         blockInstanceReceivingCheckButton:SetChecked(BFBM_DB.config.noDataReceivingInInstance)
         priceChangeAlertsCheckButton:SetChecked(BFBM_DB.config.priceChangeAlerts)
         autoWipeCheckButton:SetChecked(BFBM_DB.config.autoWipeOutdatedServerData)
+        chatAlertsDropdown:SetSelectedValue(BFBM_DB.config.chatAlerts)
     end
 end
 
