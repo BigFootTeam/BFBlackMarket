@@ -20,7 +20,6 @@ AF.AddEventHandler(BFBM)
 ---------------------------------------------------------------------
 BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
     if addon == BFBM.name then
-        BFBM:UnregisterEvent("ADDON_LOADED")
         BFBM.version = AF.GetAddOnMetadata("Version")
         BFBM.versionNum = tonumber(BFBM.version:match("%d+"))
 
@@ -117,6 +116,28 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         if AF.portal == "CN" and type(BFBM_DataUpload) ~= "table" then
             BFBM_DataUpload = {}
         end
+
+    elseif addon == "Blizzard_BlackMarketUI" then
+        BFBM:UnregisterEvent("ADDON_LOADED")
+
+        -- title container button
+        local button = AF.CreateButton(BlackMarketFrame, nil, "accent_hover", 20, 20)
+        AF.SetPoint(button, "RIGHT", BlackMarketFrame.CloseButton, "LEFT", -5, 0)
+        AF.SetTooltips(button, "TOP", 0, 5, L["BFBlackMarket"])
+        button:SetTexture("Interface\\AddOns\\BFBlackMarket\\BFBM")
+        button:SetOnClick(BFBM.ToggleMainFrame)
+
+        if not BFBM_DB.blackMarketFrameHelpViewed then
+            AF.ShowHelpTip({
+                widget = button,
+                position = "TOP",
+                text = L["Click this button to open BFBlackMarket"],
+                glow = true,
+                callback = function()
+                    BFBM_DB.blackMarketFrameHelpViewed = true
+                end,
+            })
+        end
     end
 end)
 
@@ -154,6 +175,6 @@ SlashCmdList["BFBLACKMARKET"] = function(msg)
         BFBM_DB = nil
         ReloadUI()
     else
-        BFBM.ShowMainFrame()
+        BFBM.ToggleMainFrame()
     end
 end

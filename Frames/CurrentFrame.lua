@@ -343,7 +343,7 @@ LoadItems = function(server)
         if AF.IsToday(data.lastUpdate) then
             lastUpdateText:SetText(AF.FormatTime(data.lastUpdate))
         else
-            lastUpdateText:SetText(AF.FormatRelativeTime(data.lastUpdate))
+            lastUpdateText:SetText(AF.WrapTextInColor(AF.FormatRelativeTime(data.lastUpdate), "firebrick"))
         end
         noDataText:Hide()
     else
@@ -374,7 +374,7 @@ function BFBM.OpenCurrentFrame(_, _, server, itemID)
     if not (server and itemID) then return end
 
     if not BFBMMainFrame:IsShown() then
-        BFBM.ShowMainFrame()
+        BFBM.ToggleMainFrame()
     end
     BFBMMainFrame.switch:SetSelectedValue("current")
 

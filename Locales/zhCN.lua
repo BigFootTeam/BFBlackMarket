@@ -4,6 +4,7 @@ local L = select( 2, ...).L
 L["BFBlackMarket"] = "大脚黑市"
 L["BFBM"] = "大脚黑市"
 L["New version (%s) available! Please consider updating."] = "发现新版本(%s)，建议您更新。"
+L["Click this button to open BFBlackMarket"] = "点击此按钮打开大脚黑市"
 
 L["CURRENT"] = "当前商品"
 L["HISTORY"] = "历史记录"

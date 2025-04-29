@@ -50,7 +50,7 @@ end
 -- show
 ---------------------------------------------------------------------
 local init
-function BFBM.ShowMainFrame()
+function BFBM.ToggleMainFrame()
     if not init then
         mainFrame:UpdatePixels()
         InitFrameWidgets()
