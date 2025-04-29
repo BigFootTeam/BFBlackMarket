@@ -29,6 +29,8 @@ L["Hold Ctrl to show item tooltips"] = "按住Ctrl键显示物品鼠标提示"
 L["No data receiving in instances"] = "在副本时不接收数据"
 L["Price change alerts"] = "价格变化提醒"
 L["Show notification popups when watched items change price"] = "当关注的物品价格变化时显示通知弹窗"
+L["Auto wipe outdated server data"] = "自动清除过期的服务器数据"
+L["Server history data will be preserved"] = "服务器的历史数据将被保留"
 
 -- detail
 L["Available on %s servers"] = "正在 %s 个服务器上拍卖"

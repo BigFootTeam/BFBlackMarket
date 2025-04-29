@@ -33,6 +33,7 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                 requireCtrlForItemTooltips = false,
                 noDataReceivingInInstance = false,
                 priceChangeAlerts = true,
+                autoWipeOutdatedServerData = true,
             }
         end
         BFBMMainFrame:SetScale(BFBM_DB.config.scale)
@@ -96,10 +97,19 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         if not AF.IsToday(BFBM_DB.alert.created) then
             BFBM_DB.alert.servers = {
                 -- [serverName] = {
-                --     [itemID] = true,
+                --     [itemID] = numBids,
                 -- },
             }
             BFBM_DB.alert.created = GetServerTime()
+        end
+
+        -- auto wipe
+        if BFBM_DB.config.autoWipeOutdatedServerData then
+            for server, t in pairs(BFBM_DB.data.servers) do
+                if not AF.IsToday(t.lastUpdate) then
+                    BFBM_DB.data.servers[server] = nil
+                end
+            end
         end
 
         -- NOTE: cache is only for CN servers
@@ -140,5 +150,10 @@ end)
 ---------------------------------------------------------------------
 SLASH_BFBLACKMARKET1 = "/bfbm"
 SlashCmdList["BFBLACKMARKET"] = function(msg)
-    BFBM.ShowMainFrame()
+    if msg == "reset" then
+        BFBM_DB = nil
+        ReloadUI()
+    else
+        BFBM.ShowMainFrame()
+    end
 end

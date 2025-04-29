@@ -15,7 +15,7 @@ local function CreateConfigFrame()
     AF.SetPoint(configFrame, "BOTTOMRIGHT", BFBMMainFrame, -10, 10)
 
     -- optionsPane
-    local  optionsPane = AF.CreateTitledPane(configFrame, AF.L["Options"], nil, 100)
+    local  optionsPane = AF.CreateTitledPane(configFrame, AF.L["Options"], nil, 120)
     AF.SetPoint(optionsPane, "TOPLEFT")
     AF.SetPoint(optionsPane, "TOPRIGHT")
 
@@ -40,10 +40,18 @@ local function CreateConfigFrame()
         L["Price change alerts"], L["Show notification popups when watched items change price"], AF.L["Right Click the popup to dismiss"])
     AF.SetPoint(priceChangeAlertsCheckButton, "TOPLEFT", blockInstanceReceivingCheckButton, "BOTTOMLEFT", 0, -10)
 
+    -- autoWipe
+    local autoWipeCheckButton = AF.CreateCheckButton(optionsPane, L["Auto wipe outdated server data"], function(checked)
+        BFBM_DB.config.autoWipeOutdatedServerData = checked
+    end)
+    AF.SetTooltips(autoWipeCheckButton, "TOPLEFT", 0, 1,
+        L["Auto wipe outdated server data"], L["Server history data will be preserved"])
+    AF.SetPoint(autoWipeCheckButton, "TOPLEFT", priceChangeAlertsCheckButton, "BOTTOMLEFT", 0, -10)
+
     -- importExportPane
-    local importExportPane = AF.CreateTitledPane(configFrame, AF.L["Import & Export"] .. AF.WrapTextInColor(" (WIP)", "gray"), nil, 100)
-    AF.SetPoint(importExportPane, "TOPLEFT", optionsPane, "BOTTOMLEFT", 0, -20)
-    AF.SetPoint(importExportPane, "TOPRIGHT", optionsPane, "BOTTOMRIGHT", 0, -20)
+    local importExportPane = AF.CreateTitledPane(configFrame, AF.L["Import & Export"] .. AF.WrapTextInColor(" (WIP)", "gray"), nil, 50)
+    AF.SetPoint(importExportPane, "BOTTOMLEFT")
+    AF.SetPoint(importExportPane, "BOTTOMRIGHT")
 
     -- importButton
     local importButton = AF.CreateButton(importExportPane, AF.L["Import"], "accent_hover", 135, 20)
@@ -62,6 +70,7 @@ local function CreateConfigFrame()
         requireCtrlCheckButton:SetChecked(BFBM_DB.config.requireCtrlForItemTooltips)
         blockInstanceReceivingCheckButton:SetChecked(BFBM_DB.config.noDataReceivingInInstance)
         priceChangeAlertsCheckButton:SetChecked(BFBM_DB.config.priceChangeAlerts)
+        autoWipeCheckButton:SetChecked(BFBM_DB.config.autoWipeOutdatedServerData)
     end
 end
 
