@@ -341,7 +341,7 @@ LoadItems = function(server)
 
     -- last update
     if data.lastUpdate then
-        if AF.IsToday(data.lastUpdate) then
+        if AF.IsToday(data.lastUpdate, true) then
             lastUpdateText:SetText(AF.FormatTime(data.lastUpdate))
         else
             lastUpdateText:SetText(AF.WrapTextInColor(AF.FormatRelativeTime(data.lastUpdate), "firebrick"))

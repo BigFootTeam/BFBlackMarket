@@ -51,6 +51,12 @@ local function BLACK_MARKET_ITEM_UPDATE()
         local name, texture, quantity, itemType, usable, level, levelType, sellerName, minBid, minIncrement, currBid, youHaveHighBid, numBids, timeLeft, link, marketID, quality = GetItemInfoByIndex(i)
         local itemID = GetItemInfoInstant(link)
 
+        -- update favorite
+        if youHaveHighBid then
+            BFBM_DB.favorites[itemID] = true
+            BFBM.currentServerBids[itemID] = {currBid, GetServerTime()}
+        end
+
         -- update BFBM_DB.data
         BFBM.currentServerData.items[itemID] = {
             -- itemID = itemID,
@@ -83,23 +89,26 @@ local function BLACK_MARKET_ITEM_UPDATE()
     -- update history
     BFBM.UpdateHistoryCache(AF.player.realm, nil, BFBM.currentServerData.items)
 
-    if dataChanged or not lastSent or time() - lastSent >= SEND_INTERVAL then
-        lastSent = time()
+    if dataChanged then
         -- NOTE: only update if data changed
         BFBM.currentServerData.lastUpdate = GetServerTime()
         -- current
         BFBM.UpdateCurrentItems(AF.player.realm, true)
         -- history
         BFBM.UpdateHistoryItems()
+        -- favorites
+        BFBM.AlertFavorites(AF.player.realm, BFBM.currentServerData.items)
+        -- CN data
+        BFBM.UpdateDataUpload(AF.player.realm, BFBM.currentServerData.lastUpdate, BFBM.currentServerData.items)
+    end
+
+    if dataChanged or not lastSent or time() - lastSent >= SEND_INTERVAL then
+        lastSent = time()
         -- send
         BFBM.UpdateDataForSend()
         BFBM.SendData("channel")
         BFBM.SendData("guild")
         BFBM.SendData("group")
-        -- favorites
-        BFBM.AlertFavorites(AF.player.realm, BFBM.currentServerData.items)
-        -- CN data
-        BFBM.UpdateDataUpload(AF.player.realm, BFBM.currentServerData.lastUpdate, BFBM.currentServerData.items)
     end
 end
 BFBM:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", AF.GetDelayedInvoker(0.5, BLACK_MARKET_ITEM_UPDATE))
@@ -214,11 +223,27 @@ function BFBM.AlertFavorites(server, items)
     end
 
     for itemID, t in pairs(items) do
-        if BFBM_DB.favorites[itemID] and BFBM_DB.alert.servers[server][itemID] ~= t.numBids then
+        if BFBM_DB.favorites[itemID] then
+            if BFBM_DB.myBids[server] and BFBM_DB.myBids[server][itemID] then
+                if BFBM_DB.myBids[server][itemID][1] < t.currBid then
+                    BFBM_DB.myBids[server][itemID] = nil
+                    -- be outbid
+                    local currBid = AF.FormatMoney(t.currBid, nil, true, true)
+                    local text = L["%s\nYou've been outbid!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
+                    AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 220, "LEFT", BFBM.OpenCurrentFrame, server, itemID)
+                end
+            elseif BFBM_DB.alert.servers[server][itemID] == nil then
+                -- first seen today
+                local currBid = AF.FormatMoney(t.currBid, nil, true, true)
+                local text = L["%s\nis on the Black Market!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
+                AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 220, "LEFT", BFBM.OpenCurrentFrame, server, itemID)
+            elseif BFBM_DB.alert.servers[server][itemID] ~= t.numBids then
+                -- bid changed
+                local currBid = AF.FormatMoney(t.currBid, nil, true, true)
+                local text = L["%s\nThe bid price has changed!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
+                AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 220, "LEFT", BFBM.OpenCurrentFrame, server, itemID)
+            end
             BFBM_DB.alert.servers[server][itemID] = t.numBids
-            local currBid = AF.FormatMoney(t.currBid, nil, true, true)
-            local text = L["%s is on the Black Market!\nCurrent bid: %s\nServer: %s"]:format(t.link, currBid, server)
-            AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, itemID)
         end
     end
 end

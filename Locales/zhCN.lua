@@ -37,4 +37,6 @@ L["Server history data will be preserved"] = "服务器的历史数据将被保�
 L["Available on %s servers"] = "正在 %s 个服务器上拍卖"
 
 -- popup
-L["%s is on the Black Market!\nCurrent bid: %s\nServer: %s"] = "%s 在黑市上架了！\n当前竞标价：%s\n服务器：%s"
+L["%s\nis on the Black Market!\nCurrent bid: %s\nServer: %s"] = "%s\n在黑市上架了！\n当前竞标价：%s\n服务器：%s"
+L["%s\nYou've been outbid!\nCurrent bid: %s\nServer: %s"] = "%s\n你的出价已被超过！\n当前竞标价：%s\n服务器：%s"
+L["%s\nThe bid price has changed!\nCurrent bid: %s\nServer: %s"] = "%s\n竞标价发生了变化！\n当前竞标价：%s\n服务器：%s"

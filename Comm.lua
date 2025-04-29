@@ -11,7 +11,7 @@ local BFBM_CHK_VER_PREFIX = "BFBM_VER"
 -- data for send
 ---------------------------------------------------------------------
 function BFBM.UpdateDataForSend()
-    if not BFBM.currentServerData.lastUpdate or not AF.IsToday(BFBM.currentServerData.lastUpdate) then
+    if not BFBM.currentServerData.lastUpdate or not AF.IsToday(BFBM.currentServerData.lastUpdate, true) then
         -- no data or not today
         BFBM.dataForSend = ""
         return
@@ -139,7 +139,7 @@ local function DataReceived(data, sender)
     if AF.IsEmpty(data) then return end -- empty data
     if type(data.version) ~= "number" or data.version < BFBM.minVersion then return end --version
     if type(data.server) ~= "string" then return end -- server
-    if type(data.lastUpdate) ~= "number" or not AF.IsToday(data.lastUpdate) then return end -- today
+    if type(data.lastUpdate) ~= "number" or not AF.IsToday(data.lastUpdate, true) then return end -- today
     if type(data.items) ~= "table" or AF.IsEmpty(data.items) then return end -- items
 
     if AF.IsConnectedRealm(data.server) then

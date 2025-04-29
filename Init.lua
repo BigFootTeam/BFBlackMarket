@@ -93,7 +93,7 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
 
         -- alert
         if type(BFBM_DB.alert) ~= "table" then BFBM_DB.alert = {} end
-        if not AF.IsToday(BFBM_DB.alert.created) then
+        if not AF.IsToday(BFBM_DB.alert.created, true) then
             BFBM_DB.alert.servers = {
                 -- [serverName] = {
                 --     [itemID] = numBids,
@@ -102,10 +102,26 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
             BFBM_DB.alert.created = GetServerTime()
         end
 
+        -- my bids
+        if type(BFBM_DB.myBids) ~= "table" then
+            BFBM_DB.myBids = {
+                -- [server] = {
+                --     itemID = {bid, time},
+                -- }
+            }
+        end
+        for server, t in pairs(BFBM_DB.myBids) do
+            for itemID, v in pairs(t) do
+                if not AF.IsToday(v[2], true) then
+                    BFBM_DB.myBids[server][itemID] = nil
+                end
+            end
+        end
+
         -- auto wipe
         if BFBM_DB.config.autoWipeOutdatedServerData then
             for server, t in pairs(BFBM_DB.data.servers) do
-                if not AF.IsToday(t.lastUpdate) then
+                if not AF.IsToday(t.lastUpdate, true) then
                     BFBM_DB.data.servers[server] = nil
                 end
             end
@@ -154,6 +170,13 @@ BFBM:RegisterEvent("PLAYER_LOGIN", function()
         }
     end
     BFBM.currentServerData = BFBM_DB.data.servers[AF.player.realm]
+
+    -- my bids
+    if type(BFBM_DB.myBids[AF.player.realm]) ~= "table" then
+        BFBM_DB.myBids[AF.player.realm] = {}
+    end
+    BFBM.currentServerBids = BFBM_DB.myBids[AF.player.realm]
+
     -- update data for send
     BFBM.UpdateDataForSend()
 end)
