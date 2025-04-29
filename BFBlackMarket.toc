@@ -5,7 +5,7 @@
 ## Author: enderneko (BigFootTeam)
 ## Dependencies: AbstractFramework
 ## SavedVariables: BFBM_DB,BFBM_DataUpload
-## AddonCompartmentFunc:
+## AddonCompartmentFunc: BFBM_OnAddonCompartmentClick
 ## IconTexture: Interface\AddOns\BFBlackMarket\BFBM
 
 ## X-Curse-Project-ID:

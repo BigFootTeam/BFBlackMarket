@@ -117,6 +117,10 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
             BFBM_DataUpload = {}
         end
 
+        -- minimap button
+        if type(BFBM_DB.minimap) ~= "table" then BFBM_DB.minimap = {} end
+        AF.NewMinimapButton(BFBM.name, "Interface\\AddOns\\BFBlackMarket\\BFBM", BFBM_DB.minimap, BFBM.ToggleMainFrame, L["BFBlackMarket"])
+
     elseif addon == "Blizzard_BlackMarketUI" then
         BFBM:UnregisterEvent("ADDON_LOADED")
 
@@ -177,4 +181,11 @@ SlashCmdList["BFBLACKMARKET"] = function(msg)
     else
         BFBM.ToggleMainFrame()
     end
+end
+
+---------------------------------------------------------------------
+-- addon button
+---------------------------------------------------------------------
+function BFBM_OnAddonCompartmentClick()
+    BFBM.ToggleMainFrame()
 end
