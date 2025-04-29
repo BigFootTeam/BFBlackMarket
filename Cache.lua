@@ -88,7 +88,7 @@ local function BLACK_MARKET_ITEM_UPDATE()
         -- NOTE: only update if data changed
         BFBM.currentServerData.lastUpdate = GetServerTime()
         -- current
-        BFBM.UpdateCurrentItems(AF.player.realm)
+        BFBM.UpdateCurrentItems(AF.player.realm, true)
         -- history
         BFBM.UpdateHistoryItems()
         -- send
@@ -221,19 +221,6 @@ function BFBM.AlertFavorites(server, items)
             AF.ShowNotificationPopup(text, 60, t.texture, AF.GetSound("notification1"), 270, "LEFT", BFBM.OpenCurrentFrame, server, itemID)
         end
     end
-end
-
----------------------------------------------------------------------
--- get on sale servers for item
----------------------------------------------------------------------
-function BFBM.GetOnSaleServers(itemID)
-    local servers = {}
-    for server, t in pairs(BFBM_DB.data.servers) do
-        if AF.IsToday(t.lastUpdate) and t.items[itemID] then
-            tinsert(servers, server)
-        end
-    end
-    return servers
 end
 
 ---------------------------------------------------------------------

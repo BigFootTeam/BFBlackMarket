@@ -14,7 +14,7 @@ local IsShiftKeyDown = IsShiftKeyDown
 local currentFrame
 local serverDropdown, itemList, lastUpdateText
 local updateRequired, LoadItems
-local isCurrentServerSelected, selectedServer
+local selectedServer
 
 ---------------------------------------------------------------------
 -- create
@@ -36,8 +36,6 @@ local function CreateCurrentFrame()
     serverDropdown:SetPoint("TOPRIGHT")
 
     local servers = AF.GetKeys(BFBM_DB.data.servers)
-    tinsert(servers, 1, L["Current Server"])
-    serverDropdown:SetItems(servers)
     serverDropdown:SetOnClick(function(v)
         LoadItems(v)
     end)
@@ -242,6 +240,43 @@ local itemPanePool = AF.CreateObjectPool(function()
 end)
 
 ---------------------------------------------------------------------
+-- load dropdown
+---------------------------------------------------------------------
+local function ServerComparator(a, b)
+    -- current server
+    if a[2] ~= b[2] then
+        return a[2]
+    end
+
+    -- last update desc
+    if a[3] ~= b[3] then
+        return a[3] > b[3]
+    end
+
+    -- name asc
+    return a[1] < b[1]
+end
+
+local function LoadServerDropdown()
+    local servers = {}
+    local items = {}
+
+    for server, t in pairs(BFBM_DB.data.servers) do
+        table.insert(servers, {server, server == AF.player.realm, t.lastUpdate or 0})
+    end
+    table.sort(servers, ServerComparator)
+
+    for i, v in ipairs(servers) do
+        tinsert(items, {
+            text = v[2] and AF.WrapTextInColor(v[1], "softlime") or v[1],
+            value = v[1],
+        })
+    end
+
+    serverDropdown:SetItems(items)
+end
+
+---------------------------------------------------------------------
 -- load
 ---------------------------------------------------------------------
 local function Comparator(a, b)
@@ -277,16 +312,10 @@ local function Comparator(a, b)
 end
 
 LoadItems = function(server)
-    local data
-    if not server or server == L["Current Server"] then
-        isCurrentServerSelected = true
-        selectedServer = AF.player.realm
-        data = BFBM.currentServerData
-    else
-        isCurrentServerSelected = false
-        selectedServer = server
-        data = BFBM_DB.data.servers[server]
-    end
+    selectedServer = server or selectedServer or AF.player.realm
+    serverDropdown:SetSelectedValue(selectedServer)
+
+    local data = BFBM_DB.data.servers[selectedServer]
 
     -- hide
     itemPanePool:ReleaseAll()
@@ -319,9 +348,12 @@ end
 function BFBM.UpdateCurrentItems(server, force)
     if selectedServer ~= server and not force then return end
 
+    -- force
+    selectedServer = server or selectedServer
+
     if currentFrame and currentFrame:IsShown() then
         local scroll = itemList:GetScroll()
-        LoadItems()
+        LoadItems(selectedServer)
         itemList:SetScroll(scroll) -- restore scroll position
     else
         updateRequired = true
@@ -339,8 +371,6 @@ function BFBM.OpenCurrentFrame(_, _, server, itemID)
     end
     BFBMMainFrame.switch:SetSelectedValue("current")
 
-    serverDropdown:SetSelectedValue(server)
-    selectedServer = server
     LoadItems(server)
 
     for i, pane in pairs(itemList.widgets) do
@@ -358,7 +388,7 @@ AF.RegisterCallback("BFBM_ShowFrame", function(_, which)
     if which == "current" then
         if not currentFrame then
             CreateCurrentFrame()
-            serverDropdown:SetSelectedValue(L["Current Server"])
+            LoadServerDropdown()
             LoadItems()
         end
         currentFrame:Show()
