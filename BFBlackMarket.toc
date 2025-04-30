@@ -8,7 +8,7 @@
 ## AddonCompartmentFunc: BFBM_OnAddonCompartmentClick
 ## IconTexture: Interface\AddOns\BFBlackMarket\BFBM
 
-## X-Curse-Project-ID:
+## X-Curse-Project-ID: 1255151
 ## X-Wago-ID:
 
 Locales\LoadLocales.xml

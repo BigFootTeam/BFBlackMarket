@@ -19,7 +19,6 @@ BFBlackMarket is an addon that helps you track and view Black Market items in Wo
 
 - Synchronize Black Market data across server, guild, and group
 - Set up item watch lists and receive popup notifications for specific items
-
 - 在服务器、公会以及队伍中同步黑市数据
 - 关注特定物品，可以收到相应的弹窗提示
 
@@ -27,9 +26,17 @@ BFBlackMarket is an addon that helps you track and view Black Market items in Wo
 
 - `/bfbm` - Show/hide BFBlackMarket
 - `/bfbm reset` - Reset BFBlackMarket
-
 - `/bfbm` - 显示/隐藏大脚黑市
 - `/bfbm reset` - 重置大脚黑市
+
+## Translations | 本地化翻译
+
+- Want to help translate BFCraftsman to your language? Simply submit a Pull Request!
+- All translation contributors will be credited in the addon.
+- Currently supported languages: enUS, zhCN.
+- 想要帮助将大脚工匠翻译成你的语言？提交 Pull Request 就可以啦!
+- 所有翻译贡献者将在插件中获得署名鸣谢。
+- 目前支持的语言：英文、简体中文。
 
 ## Screenshots | 截图
 
