@@ -299,7 +299,7 @@ function BFBM.UpdateDataUpload(server, lastUpdate, items)
             IconFileDataID = t.texture,
             CurrentBid = t.currBid,
             NumBids = t.numBids,
-            TimeLeft = t.timeLeft,
+            TimeLeft = t.timeLeft == 0 and 5 or t.timeLeft,
         })
     end
 end
