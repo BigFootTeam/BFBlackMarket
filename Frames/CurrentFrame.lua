@@ -358,7 +358,10 @@ function BFBM.UpdateCurrentItems(server, force)
         LoadServerDropdown()
     end
 
-    if selectedServer ~= server and not force then return end
+    if selectedServer ~= server and not force then
+        updateRequired = true
+        return
+    end
 
     -- force
     selectedServer = server or selectedServer
