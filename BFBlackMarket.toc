@@ -9,7 +9,7 @@
 ## IconTexture: Interface\AddOns\BFBlackMarket\BFBM
 
 ## X-Curse-Project-ID: 1255151
-## X-Wago-ID:
+## X-Wago-ID: aNDmPg6o
 
 Locales\LoadLocales.xml
 
