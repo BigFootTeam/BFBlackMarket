@@ -379,20 +379,29 @@ end
 -- open currentFrame
 ---------------------------------------------------------------------
 function BFBM.OpenCurrentFrame(_, _, server, itemID)
-    if not (server and itemID) then return end
+    if not server then return end
 
     if not BFBMMainFrame:IsShown() then
-        BFBM.ToggleMainFrame()
+        BFBM.ToggleMainFrame() -- trigger OnShow
     end
-    BFBMMainFrame.switch:SetSelectedValue("current")
 
+    if not BFBM_DB.data.servers[server] then
+        BFBMMainFrame:Hide()
+        return
+    end
+
+    BFBMMainFrame.switch:SetSelectedValue("current")
     LoadItems(server)
 
-    for i, pane in pairs(itemList.widgets) do
-        if pane.itemID == itemID then
-            itemList:SetScroll(i)
-            break
+    if itemID then
+        for i, pane in pairs(itemList.widgets) do
+            if pane.itemID == itemID then
+                itemList:SetScroll(i)
+                break
+            end
         end
+    else
+        itemList:SetScroll(1)
     end
 end
 

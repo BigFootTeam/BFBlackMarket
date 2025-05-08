@@ -46,4 +46,5 @@ L["%s\nYou've been outbid!\nCurrent bid: %s\nServer: %s"] = "%s\n你的出价已
 L["%s\nThe bid price has changed!\nCurrent bid: %s\nServer: %s"] = "%s\n竞标价发生了变化！\n当前竞标价：%s\n服务器：%s"
 
 -- chat
-L["%s data updated, check %s to view details!"] = "%s的数据已更新，可以打开%s查看哦！"
+L["%s data updated, click %s to view details!"] = "%s的数据已更新，可以点击%s查看哦！"
+L["here"] = "这里"

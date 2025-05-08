@@ -255,14 +255,27 @@ end
 ---------------------------------------------------------------------
 function BFBM.ShowChatAlerts(server)
     if BFBM_DB.config.chatAlerts == "all" or (BFBM_DB.config.chatAlerts == "current" and AF.IsConnectedRealm(server)) then
+        local serverName
         if AF.IsConnectedRealm(server) then
-            server = AF.WrapTextInColor(server, "softlime")
+            serverName = AF.WrapTextInColor(server, "softlime")
         else
-            server = AF.WrapTextInColor(server, "yellow_text")
+            serverName = AF.WrapTextInColor(server, "yellow_text")
         end
-        AF.Print(L["%s data updated, check %s to view details!"]:format(server, AF.WrapTextInColor(L["BFBlackMarket"], "accent")))
+
+        local link = ("|c%s|Haddon:BFBlackMarket:%s|h%s|h|r"):format(AF.GetAccentColorHex(), server, L["here"])
+        AF.Print(L["%s data updated, click %s to view details!"]:format(serverName, link))
     end
 end
+
+-- local link = ("|c%s|Haddon:BFBlackMarket:%s|h%s|h|r"):format(AF.GetAccentColorHex(), "影之哀伤", L["here"])
+-- AF.Print(L["%s data updated, click %s to view details!"]:format("影之哀伤", link))
+
+EventRegistry:RegisterCallback("SetItemRef", function(_, link)
+    local linkType, addonName, server = strsplit(":", link)
+    if linkType == "addon" and addonName == "BFBlackMarket" then
+        BFBM.OpenCurrentFrame(nil, nil, server)
+    end
+end)
 
 ---------------------------------------------------------------------
 -- data for upload
