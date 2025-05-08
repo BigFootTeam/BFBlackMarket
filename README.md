@@ -24,7 +24,7 @@
 
 ## Translations
 
-- Want to help translate BFCraftsman to your language? Simply submit a Pull Request!
+- Want to help translate BFBlackMarket to your language? Simply submit a Pull Request!
 - All translation contributors will be credited in the addon.
 - Currently supported languages: enUS, zhCN.
 
@@ -62,6 +62,6 @@
 
 ## 本地化翻译
 
-- 想要帮助将大脚工匠翻译成你的语言？提交 Pull Request 就可以啦!
+- 想要帮助将大脚黑市翻译成你的语言？提交 Pull Request 就可以啦!
 - 所有翻译贡献者将在插件中获得署名鸣谢。
 - 目前支持的语言：英文、简体中文。
