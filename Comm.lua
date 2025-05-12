@@ -74,7 +74,7 @@ end
 local GetItemInfoInstant = C_Item.GetItemInfoInstant
 
 local function FillItemData(_, item, itemID, _, _, data)
-    if item then
+    if item and data then
         if not data._temp then data._temp = {} end
         data._temp[itemID] = {}
         local t = data._temp[itemID]
