@@ -3,6 +3,7 @@ local BFBM = select(2, ...)
 local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
+local LRI = LibStub("LibRealmInfoCN")
 
 local BFBM_SEND_PREFIX = "BFBM_DATA"
 local BFBM_CHK_VER_PREFIX = "BFBM_VER"
@@ -145,6 +146,13 @@ local function DataReceived(data, sender)
     if AF.IsConnectedRealm(data.server) then
         -- NOTE: if connected realm, change to current server
         data.server = AF.player.realm
+    else
+        --! CN only
+        -- NOTE: if a part of connected realm, change to the first connected realm
+        local server = LRI.GetConnectedRealmName(data.server, true)
+        if server then
+            data.server = server
+        end
     end
 
     if not ShouldProcess(data.server, data.lastUpdate, data.items) then return end -- process

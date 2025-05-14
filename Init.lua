@@ -11,6 +11,7 @@ BFBM.MAX_BID = 99999990000
 local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
+local LRI = LibStub("LibRealmInfoCN")
 
 AF.RegisterAddon(BFBM.name, L["BFBlackMarket"])
 AF.AddEventHandler(BFBM)
@@ -86,6 +87,7 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                     --     },
                     --     lastUpdate = (number),
                     --     lastAvgCalc = (number),
+                    --     lastMerge = (number),
                     --     avgBid = (number),
                     -- },
                 },
@@ -162,7 +164,49 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
     end
 end)
 
-BFBM:RegisterEvent("PLAYER_LOGIN", function()
+local function MergeConnectedRealmData()
+    local temp
+
+    for server, t in pairs(BFBM_DB.data.servers) do
+        if AF.IsConnectedRealm(server) then
+            if not temp or temp.lastUpdate < t.lastUpdate then
+                temp = t
+            end
+            BFBM_DB.data.servers[server] = nil
+        end
+    end
+
+    BFBM_DB.data.servers[AF.player.realm] = temp
+end
+
+local function MergeConnectedRealmDataCN()
+    local newServer
+    local serverData = {}
+
+    for server, t in pairs(BFBM_DB.data.servers) do
+        if LRI.HasConnectedRealm(server) then
+            newServer = LRI.GetConnectedRealmName(server, true, true)
+        else
+            newServer = server
+        end
+
+        if not serverData[newServer] then
+            serverData[newServer] = t
+        elseif not serverData[newServer].lastUpdate or (t.lastUpdate and serverData[newServer].lastUpdate < t.lastUpdate) then
+            serverData[newServer] = t
+        end
+    end
+
+    BFBM_DB.data.servers = serverData
+end
+
+AF.RegisterCallback("AF_PLAYER_LOGIN", function()
+    if AF.portal == "CN" then
+        MergeConnectedRealmDataCN()
+    else
+        MergeConnectedRealmData()
+    end
+
     -- current server
     if type(BFBM_DB.data.servers[AF.player.realm]) ~= "table" then
         BFBM_DB.data.servers[AF.player.realm] = {

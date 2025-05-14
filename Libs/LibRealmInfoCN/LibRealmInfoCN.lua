@@ -111,27 +111,10 @@ end
 ---------------------------------------------------------------------
 -- GetConnectedRealmID
 ---------------------------------------------------------------------
-function lib.GetConnectedRealmID(realmNameOrID, unpackResult)
+function lib.GetConnectedRealmID(realmNameOrID, unpackResult, currentRealmFirst)
     if Unpack then Unpack() end
 
-    if realmNameOrID and type(realmNameOrID) == "string" then
-        realmNameOrID = realmNameToID[realmNameOrID]
-    end
-
-    if realmNameOrID and realmData[realmNameOrID] and realmData[realmNameOrID]["connected"] then
-        if unpackResult then
-            return unpack(realmData[realmNameOrID]["connected"])
-        else
-            return realmData[realmNameOrID]["connected"]
-        end
-    end
-end
-
----------------------------------------------------------------------
--- GetConnectedRealmName
----------------------------------------------------------------------
-function lib.GetConnectedRealmName(realmNameOrID, unpackResult)
-    if Unpack then Unpack() end
+    realmNameOrID = realmNameOrID or currentRealmID
 
     if realmNameOrID and type(realmNameOrID) == "string" then
         realmNameOrID = realmNameToID[realmNameOrID]
@@ -140,13 +123,67 @@ function lib.GetConnectedRealmName(realmNameOrID, unpackResult)
     if realmNameOrID and realmData[realmNameOrID] and realmData[realmNameOrID]["connected"] then
         local result = {}
         for _, id in pairs(realmData[realmNameOrID]["connected"]) do
-            tinsert(result, realmData[id]["name"])
+            if currentRealmFirst and id == currentRealmID then
+                tinsert(result, 1, id)
+            else
+                tinsert(result, id)
+            end
         end
+
         if unpackResult then
             return unpack(result)
         else
             return result
         end
+    end
+end
+
+---------------------------------------------------------------------
+-- GetConnectedRealmName
+---------------------------------------------------------------------
+function lib.GetConnectedRealmName(realmNameOrID, unpackResult, currentRealmFirst)
+    if Unpack then Unpack() end
+
+    realmNameOrID = realmNameOrID or currentRealmID
+
+    if realmNameOrID and type(realmNameOrID) == "string" then
+        realmNameOrID = realmNameToID[realmNameOrID]
+    end
+
+    if realmNameOrID and realmData[realmNameOrID] and realmData[realmNameOrID]["connected"] then
+        local result = {}
+        for _, id in pairs(realmData[realmNameOrID]["connected"]) do
+            if currentRealmFirst and id == currentRealmID then
+                tinsert(result, 1, realmData[id]["name"])
+            else
+                tinsert(result, realmData[id]["name"])
+            end
+        end
+
+        if unpackResult then
+            return unpack(result)
+        else
+            return result
+        end
+    end
+end
+
+---------------------------------------------------------------------
+-- HasConnectedRealm
+---------------------------------------------------------------------
+function lib.HasConnectedRealm(realmNameOrID)
+    if Unpack then Unpack() end
+
+    realmNameOrID = realmNameOrID or currentRealmID
+
+    if realmNameOrID and type(realmNameOrID) == "string" then
+        realmNameOrID = realmNameToID[realmNameOrID]
+    end
+
+    if realmNameOrID and realmData[realmNameOrID] and realmData[realmNameOrID]["connected"] then
+        return true
+    else
+        return false
     end
 end
 

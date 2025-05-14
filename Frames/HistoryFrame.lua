@@ -320,7 +320,7 @@ LoadItems = function()
     -- load
     for id, t in pairs(BFBM_DB.data.items) do
         local search = searchBox:GetText()
-        if search == "" or t.name:find(search) or strfind(id, search) then
+        if t.name and (search == "" or t.name:find(search) or strfind(id, search)) then
             local pane = itemPanePool:Acquire()
             pane:Load(id, t)
             n = n + 1

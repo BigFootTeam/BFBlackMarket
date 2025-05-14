@@ -3,6 +3,7 @@ local BFBM = select(2, ...)
 local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
+local LRI = LibStub("LibRealmInfoCN")
 
 local BAG_ITEM_QUALITY_COLORS = BAG_ITEM_QUALITY_COLORS
 local BIDS = BIDS
@@ -273,8 +274,23 @@ function LoadServerDropdown()
     table.sort(servers, ServerComparator)
 
     for i, v in ipairs(servers) do
+        local text
+        if AF.portal == "CN" then
+            local connected = LRI.GetConnectedRealmName(v[1], nil, true)
+            if connected then
+                if connected[1] == AF.player.realm then
+                    connected[1] = AF.WrapTextInColor(v[1], "softlime")
+                end
+                text = table.concat(connected, ",")
+            elseif v[2] then
+                text = AF.WrapTextInColor(v[1], "softlime")
+            else
+                text = v[1]
+            end
+        end
+
         tinsert(items, {
-            text = v[2] and AF.WrapTextInColor(v[1], "softlime") or v[1],
+            text = text,
             value = v[1],
         })
     end

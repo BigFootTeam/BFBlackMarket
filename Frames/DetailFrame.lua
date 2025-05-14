@@ -3,6 +3,7 @@ local BFBM = select(2, ...)
 local L = BFBM.L
 ---@type AbstractFramework
 local AF = _G.AbstractFramework
+local LRI = LibStub("LibRealmInfoCN")
 
 local detailFrame
 local LoadData
@@ -101,6 +102,62 @@ local pool = AF.CreateObjectPool(function()
 end)
 
 ---------------------------------------------------------------------
+-- merge
+---------------------------------------------------------------------
+local function MergeConnectedRealmData(itemID)
+    if BFBM_DB.data.items[itemID].lastMerge == BFBM_DB.data.items[itemID].lastUpdate then
+        return
+    end
+    BFBM_DB.data.items[itemID].lastMerge = BFBM_DB.data.items[itemID].lastUpdate
+
+    local history = BFBM_DB.data.items[itemID].history
+    local merged = {}
+
+    for server, ht in pairs(history) do
+        local newServer
+        if AF.IsConnectedRealm(server) then
+            newServer = AF.player.realm
+        else
+            newServer = server
+        end
+
+        if not merged[newServer] then
+            merged[newServer] = ht
+        else
+            AF.Merge(merged[newServer], ht)
+        end
+    end
+
+    BFBM_DB.data.items[itemID].history = merged
+end
+
+local function MergeConnectedRealmDataCN(itemID)
+    if BFBM_DB.data.items[itemID].lastMerge == BFBM_DB.data.items[itemID].lastUpdate then
+        return
+    end
+    BFBM_DB.data.items[itemID].lastMerge = BFBM_DB.data.items[itemID].lastUpdate
+
+    local history = BFBM_DB.data.items[itemID].history
+    local merged = {}
+
+    for server, ht in pairs(history) do
+        if LRI.HasConnectedRealm(server) then
+            newServer = LRI.GetConnectedRealmName(server, true, true)
+        else
+            newServer = server
+        end
+
+        if not merged[newServer] then
+            merged[newServer] = ht
+        else
+            AF.Merge(merged[newServer], ht)
+        end
+    end
+
+    BFBM_DB.data.items[itemID].history = merged
+end
+
+---------------------------------------------------------------------
 -- load
 ---------------------------------------------------------------------
 LoadData = function(itemID)
@@ -131,6 +188,13 @@ LoadData = function(itemID)
     local today = AF.GetDateString()
     local count = 0
 
+    -- merge
+    if AF.portal == "CN" then
+        MergeConnectedRealmDataCN(itemID)
+    else
+        MergeConnectedRealmData(itemID)
+    end
+
     for server, st in pairs(t.history) do
         local lastSeenDate, lastSeenInfo = AF.GetMaxKeyValue(st)
 
@@ -138,7 +202,7 @@ LoadData = function(itemID)
         lastBid = lastSeenInfo.finalBid or lastBid
 
         local w = pool:Acquire()
-        w.server:SetText(server)
+        w.server:SetText(server .. (LRI.HasConnectedRealm(server) and "*" or ""))
         w.currBid:SetText(AF.FormatMoney(lastBid, nil, true, true))
         w.lastSeenDate:SetText(AF.FormatTime(AF.GetDateSeconds(lastSeenDate), "%Y/%m/%d"))
 
