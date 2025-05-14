@@ -16,6 +16,7 @@ L["Last Update"] = "最后更新"
 L["Only update time when data changes"] = "仅在数据变化时更新时间"
 L["No data"] = "没有数据"
 L["Servers"] = "服务器"
+L["Click here to switch servers"] = "点击这里切换服务器"
 
 -- history
 L["Avg"] = "均价"

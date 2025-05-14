@@ -37,6 +37,18 @@ local function CreateCurrentFrame()
     serverDropdown:SetPoint("TOPLEFT")
     serverDropdown:SetPoint("TOPRIGHT")
 
+    if not BFBM_DB.serverSwitchHelpViewed then
+        AF.ShowHelpTip({
+            widget = serverDropdown.button,
+            position = "RIGHT",
+            glow = true,
+            text = L["Click here to switch servers"],
+            callback = function()
+                BFBM_DB.serverSwitchHelpViewed = true
+            end
+        })
+    end
+
     local servers = AF.GetKeys(BFBM_DB.data.servers)
     serverDropdown:SetOnClick(function(v)
         LoadItems(v)
