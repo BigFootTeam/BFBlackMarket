@@ -1,3 +1,3 @@
-[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r3...0b60c272be3b8ebfce3ce852fde92270bf062a9a)
+[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r4...f44eed3cbb49eb9f5844ba3a9c346ba77225b9f7)
 
-- BFBM_DataUpload is now only available for CN region and zhCN clients
+- Fix itemType
