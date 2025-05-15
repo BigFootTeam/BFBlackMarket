@@ -1,13 +1,3 @@
-[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r2...fefba620f2bdc0633c768addb07f972ca5e5cef5)
+[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r3...0b60c272be3b8ebfce3ce852fde92270bf062a9a)
 
-ZamestoTV (1):
-
-- Create ruRU.lua (#1)
-
-enderneko (7):
-
-- Update chatAlertsDropdown
-- Add QRCode (CN only)
-- Add serverSwitchHelpTip
-- Add LibRealmInfoCN
-- Fix nil data
+- BFBM_DataUpload is now only available for CN region and zhCN clients
