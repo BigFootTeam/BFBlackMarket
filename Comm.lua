@@ -83,7 +83,7 @@ local function FillItemData(_, item, itemID, _, _, data)
         t.link = item:GetItemLink()
         t.texture = item:GetItemIcon()
         t.quality = item:GetItemQuality()
-        t.itemType = select(2, GetItemInfoInstant(itemID))
+        t.itemType = select(3, GetItemInfoInstant(itemID))
     end
 end
 

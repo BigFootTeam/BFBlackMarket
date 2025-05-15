@@ -300,6 +300,7 @@ function BFBM.UpdateDataUpload(server, lastUpdate, items)
         Server = server,
         LastUpdate = lastUpdate,
         Items = {},
+        Version = BFBM.version,
         ClientVersion = GetBigFootClientVersion(),
     }
 
