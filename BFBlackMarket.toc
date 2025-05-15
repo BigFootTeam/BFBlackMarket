@@ -26,3 +26,4 @@ Frames\HistoryFrame.lua
 Frames\ConfigFrame.lua
 Frames\DetailFrame.lua
 Frames\AboutFrame.lua
+Frames\QRCodeFrame.lua

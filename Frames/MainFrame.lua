@@ -13,9 +13,28 @@ mainFrame:SetPoint("CENTER")
 local function InitFrameWidgets()
     -- about
     local aboutButton = AF.CreateButton(BFBMMainFrame.header, nil, "accent_hover", 20, 20)
-    AF.SetPoint(aboutButton, "BOTTOMRIGHT", BFBMMainFrame.header.closeBtn, "BOTTOMLEFT", 1, 0)
     aboutButton:SetTexture(AF.GetIcon("Question"), {14, 14})
     aboutButton:SetOnClick(BFBM.ToggleAboutFrame)
+
+    -- QR code
+    if AF.portal == "CN" then
+        local qrCodeButton = AF.CreateButton(BFBMMainFrame.header, nil, "accent", 20, 20)
+        AF.SetPoint(qrCodeButton, "BOTTOMRIGHT", BFBMMainFrame.header.closeBtn, "BOTTOMLEFT", 1, 0)
+        AF.SetPoint(aboutButton, "BOTTOMRIGHT", qrCodeButton, "BOTTOMLEFT", 1, 0)
+
+        qrCodeButton:SetTexture(AF.GetIcon("QR_Code"), {14, 14})
+        qrCodeButton:SetOnClick(function()
+            BFBM_DB.qrCodeViewed = true
+            AF.HideCalloutGlow(qrCodeButton)
+            BFBM.ToggleQRCodeFrame()
+        end)
+
+        if not BFBM_DB.qrCodeViewed then
+            AF.ShowCalloutGlow(qrCodeButton, true, false, 1)
+        end
+    else
+        AF.SetPoint(aboutButton, "BOTTOMRIGHT", BFBMMainFrame.header.closeBtn, "BOTTOMLEFT", 1, 0)
+    end
 
     -- slider
     local slider = AF.CreateSlider(mainFrame.header, nil, 50, 1, 2, 0.05)
