@@ -54,10 +54,11 @@ local function CreateConfigFrame()
     AF.SetPoint(chatAlertsDropdown, "TOPLEFT", priceChangeAlertsCheckButton, "BOTTOMLEFT", 0, -30)
     AF.SetPoint(chatAlertsDropdown, "RIGHT")
 
+    chatAlertsDropdown:SetIconBGColor()
     chatAlertsDropdown:SetItems({
-        {text = L["Never"], value = "never"},
-        {text = L["Current Server Only"], value = "current"},
-        {text = L["All Servers"], value = "all"},
+        {text = AF.WrapTextInColor(L["Never"], "firebrick"), value = "never", icon = AF.GetIcon("Fluent_Color_Unavailable")},
+        {text = AF.WrapTextInColor(L["Current Server Only"], "softlime"), value = "current", icon = AF.GetIcon("Fluent_Color_Home")},
+        {text = AF.WrapTextInColor(L["All Servers"], "yellow_text"), value = "all", icon = AF.GetIcon("Fluent_Color_Globe")},
     })
 
     chatAlertsDropdown:SetOnClick(function(v)
