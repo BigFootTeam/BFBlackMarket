@@ -10,7 +10,7 @@ local aboutFrame
 -- create
 ---------------------------------------------------------------------
 local function CreateAboutFrame()
-    aboutFrame = AF.CreateBorderedFrame(BFBMMainFrame, "BFBMAboutFrame", nil, 160, nil, "accent")
+    aboutFrame = AF.CreateBorderedFrame(BFBMMainFrame, "BFBMAboutFrame", nil, 200, nil, "accent")
     AF.SetPoint(aboutFrame, "TOPLEFT", BFBMMainFrame, 10, -10)
     AF.SetPoint(aboutFrame, "TOPRIGHT", BFBMMainFrame, -10, -10)
     AF.SetFrameLevel(aboutFrame, 100)
@@ -60,6 +60,13 @@ local function CreateAboutFrame()
     local versionText = AF.CreateFontString(aboutFrame, AF.WrapTextInColor(AF.L["Version"] .. ": ", "accent") .. AF.GetAddOnMetadata("Version"))
     AF.SetPoint(versionText, "LEFT", aboutFrame, "BOTTOM", 10, 0)
     AF.SetPoint(versionText, "BOTTOM", authorText)
+
+    -- translators
+    local translatorsText = AF.CreateFontString(aboutFrame, AF.WrapTextInColor(AF.L["Translators"], "accent"))
+    AF.SetPoint(translatorsText, "TOPLEFT", authorText, "BOTTOMLEFT", 0, -20)
+    translatorsText:SetJustifyH("LEFT")
+    translatorsText:SetSpacing(5)
+    translatorsText:AppendText("  ruRU: ZamestoTV")
 end
 
 ---------------------------------------------------------------------
