@@ -253,8 +253,17 @@ end
 ---------------------------------------------------------------------
 -- chat alerts
 ---------------------------------------------------------------------
+local lastAlerts = {}
+
 function BFBM.ShowChatAlerts(server)
     if BFBM_DB.config.chatAlerts == "all" or (BFBM_DB.config.chatAlerts == "current" and AF.IsConnectedRealm(server)) then
+        if BFBM_DB.config.chatAlertsInterval and BFBM_DB.config.chatAlertsInterval ~= 0 then
+            if lastAlerts[server] and time() - lastAlerts[server] < BFBM_DB.config.chatAlertsInterval then
+                return
+            end
+            lastAlerts[server] = time()
+        end
+
         local serverName
         if AF.IsConnectedRealm(server) then
             serverName = AF.WrapTextInColor(server, "softlime")

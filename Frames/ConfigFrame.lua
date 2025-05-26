@@ -65,6 +65,24 @@ local function CreateConfigFrame()
         BFBM_DB.config.chatAlerts = v
     end)
 
+    -- chat alerts interval
+    local chatAlertsIntervalDropdown = AF.CreateDropdown(optionsPane)
+    chatAlertsIntervalDropdown:SetLabel(L["Chat messages interval"])
+    AF.SetPoint(chatAlertsIntervalDropdown, "TOPLEFT", chatAlertsDropdown, "BOTTOMLEFT", 0, -30)
+    AF.SetPoint(chatAlertsIntervalDropdown, "RIGHT")
+
+    chatAlertsIntervalDropdown:SetItems({
+        {text = L["Instant"], value = 0},
+        {text = AF.L["%d minutes"]:format(5), value = 5 * 60},
+        {text = AF.L["%d minutes"]:format(10), value = 10 * 60},
+        {text = AF.L["%d minutes"]:format(15), value = 15 * 60},
+        {text = AF.L["%d minutes"]:format(30), value = 30 * 60},
+        {text = AF.L["%d minutes"]:format(60), value = 60 * 60},
+    })
+
+    chatAlertsIntervalDropdown:SetOnClick(function(v)
+        BFBM_DB.config.chatAlertsInterval = v
+    end)
 
     -- importExportPane
     local importExportPane = AF.CreateTitledPane(configFrame, AF.L["Import & Export"] .. AF.WrapTextInColor(" (WIP)", "gray"), nil, 50)
@@ -90,6 +108,7 @@ local function CreateConfigFrame()
         priceChangeAlertsCheckButton:SetChecked(BFBM_DB.config.priceChangeAlerts)
         autoWipeCheckButton:SetChecked(BFBM_DB.config.autoWipeOutdatedServerData)
         chatAlertsDropdown:SetSelectedValue(BFBM_DB.config.chatAlerts)
+        chatAlertsIntervalDropdown:SetSelectedValue(BFBM_DB.config.chatAlertsInterval)
     end
 end
 

@@ -35,6 +35,7 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
                 priceChangeAlerts = true,
                 autoWipeOutdatedServerData = true,
                 chatAlerts = "current",
+                chatAlertsInterval = 0,
             }
         end
         BFBMMainFrame:SetScale(BFBM_DB.config.scale)

@@ -37,6 +37,8 @@ L["Never"] = "从不"
 L["Current Server Only"] = "仅当前服务器"
 L["All Servers"] = "所有服务器"
 L["Chat messages on BM changes"] = "黑市数据变化时显示聊天消息"
+L["Chat messages interval"] = "聊天消息间隔"
+L["Instant"] = "即时"
 
 -- detail
 L["Available on %s servers"] = "正在 %s 个服务器上拍卖"
