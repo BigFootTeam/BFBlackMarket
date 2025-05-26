@@ -31,7 +31,7 @@ local function CreateQRCodeFrame()
     -- animation
     function qrCodeFrame:Show()
         AF.FrameShow(qrCodeFrame)
-        AF.SetSize(qrCodeFrame, 0, 0)
+        AF.SetSize(qrCodeFrame, 1, 1)
         AF.AnimatedResize(qrCodeFrame, 160, 240, nil, nil, nil, function()
             text:Show()
             qrcode:Show()
@@ -39,7 +39,7 @@ local function CreateQRCodeFrame()
     end
 
     function qrCodeFrame:Hide()
-        AF.AnimatedResize(qrCodeFrame, 0, 0, nil, nil, function()
+        AF.AnimatedResize(qrCodeFrame, 1, 1, nil, nil, function()
             text:Hide()
             qrcode:Hide()
         end, function()
