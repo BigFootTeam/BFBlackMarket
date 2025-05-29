@@ -163,21 +163,22 @@ end
 ---------------------------------------------------------------------
 -- instance receiving
 ---------------------------------------------------------------------
-local function EnterInstance()
-    AF.UnregisterComm(BFBM_SEND_PREFIX, DataReceived)
-end
-
-local function LeaveInstance()
-    AF.RegisterComm(BFBM_SEND_PREFIX, DataReceived)
+local function InstanceStateChange(_, info)
+    if info.isIn then
+        AF.UnregisterComm(BFBM_SEND_PREFIX)
+    else
+        AF.RegisterComm(BFBM_SEND_PREFIX, DataReceived)
+    end
 end
 
 function BFBM.DisableInstanceReceiving(disable)
     if disable then
-        AF.RegisterCallback("AF_INSTANCE_ENTER", EnterInstance)
-        AF.RegisterCallback("AF_INSTANCE_LEAVE", LeaveInstance)
+        AF.RegisterCallback("AF_INSTANCE_STATE_CHANGE", InstanceStateChange)
+        if AF.IsInInstance() then
+            AF.UnregisterComm(BFBM_SEND_PREFIX)
+        end
     else
-        AF.UnregisterCallback("AF_INSTANCE_ENTER", EnterInstance)
-        AF.UnregisterCallback("AF_INSTANCE_LEAVE", LeaveInstance)
+        AF.UnregisterCallback("AF_INSTANCE_STATE_CHANGE", InstanceStateChange)
         AF.RegisterComm(BFBM_SEND_PREFIX, DataReceived)
     end
 end
