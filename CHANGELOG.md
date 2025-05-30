@@ -1,3 +1,4 @@
-[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r5...6452160e836e787fabc2b38e8ad9d4e49d315fcb)
+[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r6...967c61f72684885443083675844e488596b85e58)
 
-- Add chat alerts interval
+- Fix instance state
+- Fix resize animation

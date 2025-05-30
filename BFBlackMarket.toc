@@ -1,7 +1,7 @@
 ## Interface: 110105
 ## Title: BFBlackMarket
 ## Title-zhCN: 大脚黑市
-## Version: r6
+## Version: r7
 ## Author: enderneko (BigFootTeam)
 ## Dependencies: AbstractFramework
 ## SavedVariables: BFBM_DB,BFBM_DataUpload
