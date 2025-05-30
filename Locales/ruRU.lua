@@ -16,6 +16,7 @@ L["Last Update"] = "Последнее обновление"
 L["Only update time when data changes"] = "Обновлять время только при изменении данных"
 L["No data"] = "Нет данных"
 L["Servers"] = "Серверы"
+L["Click here to switch servers"] = "Нажмите здесь, чтобы переключить сервер"
 
 -- history
 L["Avg"] = "Средняя цена"
@@ -36,6 +37,8 @@ L["Never"] = "Никогда"
 L["Current Server Only"] = "Только текущий сервер"
 L["All Servers"] = "Все серверы"
 L["Chat messages on BM changes"] = "Сообщения в чате при изменении данных черного рынка"
+L["Chat messages interval"] = "Интервал сообщений чата"
+L["Instant"] = "Мгновенный"
 
 -- detail
 L["Available on %s servers"] = "Доступно на %s серверах"
