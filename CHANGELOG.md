@@ -1,4 +1,9 @@
-[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r6...967c61f72684885443083675844e488596b85e58)
+[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r7...fafe8775b3288ef9e887de11c71ba64071ee6273)
 
-- Fix instance state
-- Fix resize animation
+ZamestoTV (1):
+
+- Update ruRU.lua (#2)
+
+enderneko (1):
+
+- Bump up toc
