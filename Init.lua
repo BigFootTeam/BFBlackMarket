@@ -147,7 +147,7 @@ BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
         -- title container button
         local button = AF.CreateButton(BlackMarketFrame, nil, "accent_hover", 20, 20)
         AF.SetPoint(button, "RIGHT", BlackMarketFrame.CloseButton, "LEFT", -5, 0)
-        AF.SetTooltips(button, "TOP", 0, 5, L["BFBlackMarket"])
+        AF.SetTooltip(button, "TOP", 0, 5, L["BFBlackMarket"])
         button:SetTexture("Interface\\AddOns\\BFBlackMarket\\BFBM")
         button:SetOnClick(BFBM.ToggleMainFrame)
 

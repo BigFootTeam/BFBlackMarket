@@ -42,7 +42,7 @@ local function CreateHistoryFrame()
     AF.SetPoint(searchBox, "TOPRIGHT", addButton, "TOPLEFT", -5, 0)
     addButton:SetTexture(AF.GetIcon("Create_Square"))
 
-    local content = AF.CreateDialogContent(20)
+    local content = CreateFrame("Frame", nil, historyFrame)
     content.idBox = AF.CreateEditBox(content, L["Item ID"], nil, 20, "number")
     content.idBox:SetPoint("TOPLEFT")
     content.idBox:SetPoint("TOPRIGHT")
@@ -52,15 +52,16 @@ local function CreateHistoryFrame()
             AF.Tooltip:SetPoint("TOPRIGHT", content.dialog, "TOPLEFT", -5, 0)
             AF.Tooltip:SetItem(value)
             content.dialog:EnableYes(true)
-        else
+        elseif content.dialog then
             AF.Tooltip:Hide()
             content.dialog:EnableYes(false)
         end
     end)
 
     addButton:SetOnClick(function()
-        AF.ShowDialog(historyFrame, L["Add Item to Watchlist"], nil, nil, nil, true, content, true)
-        AF.SetDialogOnConfirm(function()
+        local dialog = AF.GetDialog(historyFrame, L["Add Item to Watchlist"])
+        dialog:SetContent(content, 20)
+        dialog:SetOnConfirm(function()
             local id = content.idBox:GetValue()
             if id then
                 BFBM_DB.favorites[id] = true
@@ -79,7 +80,7 @@ local function CreateHistoryFrame()
                 LoadItems()
             end
         end)
-        AF.SetDialogPoint("TOP", 0, -30)
+        AF.SetPoint(dialog, "TOP", 0, -30)
     end)
 
     -- item list

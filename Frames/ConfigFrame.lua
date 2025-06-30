@@ -36,7 +36,7 @@ local function CreateConfigFrame()
     local autoWipeCheckButton = AF.CreateCheckButton(optionsPane, L["Auto wipe outdated server data"], function(checked)
         BFBM_DB.config.autoWipeOutdatedServerData = checked
     end)
-    AF.SetTooltips(autoWipeCheckButton, "TOPLEFT", 0, 1,
+    AF.SetTooltip(autoWipeCheckButton, "TOPLEFT", 0, 1,
         L["Auto wipe outdated server data"], L["Server history data will be preserved"])
     AF.SetPoint(autoWipeCheckButton, "TOPLEFT", blockInstanceReceivingCheckButton, "BOTTOMLEFT", 0, -10)
 
@@ -44,7 +44,7 @@ local function CreateConfigFrame()
     local priceChangeAlertsCheckButton = AF.CreateCheckButton(optionsPane, L["Price change alerts"], function(checked)
         BFBM_DB.config.priceChangeAlerts = checked
     end)
-    AF.SetTooltips(priceChangeAlertsCheckButton, "TOPLEFT", 0, 1,
+    AF.SetTooltip(priceChangeAlertsCheckButton, "TOPLEFT", 0, 1,
         L["Price change alerts"], L["Show notification popups when watched items change price"], AF.L["Right Click the popup to dismiss"])
     AF.SetPoint(priceChangeAlertsCheckButton, "TOPLEFT", autoWipeCheckButton, "BOTTOMLEFT", 0, -10)
 
