@@ -44,7 +44,7 @@ local function InitFrameWidgets()
     slider:SetAfterValueChanged(function(value)
         BFBM_DB.config.scale = value
         mainFrame:SetScale(value)
-        AF.UpdatePixelsForAddon()
+        AF.UpdatePixelsForRegionAndChildren(mainFrame)
     end)
 
     -- switch
