@@ -1,9 +1,4 @@
-[Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r7...fafe8775b3288ef9e887de11c71ba64071ee6273)
+[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r8...4e757c4645448712af175e26a06bcfe6f1b885de)
 
-ZamestoTV (1):
-
-- Update ruRU.lua (#2)
-
-enderneko (1):
-
-- Bump up toc
+- Adapt to new AF
+- Update frame level
