@@ -1,4 +1,3 @@
-[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r8...4e757c4645448712af175e26a06bcfe6f1b885de)
+[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r9...824f4edda959015acb2673f0cb7ccd35b828d3bb)
 
-- Adapt to new AF
-- Update frame level
+- Update toc
