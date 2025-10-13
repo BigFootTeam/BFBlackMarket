@@ -93,7 +93,6 @@ local pool = AF.CreateObjectPool(function()
     -- last seen
     local lastSeenDate = AF.CreateFontString(w)
     w.lastSeenDate = lastSeenDate
-    AF.SetPoint(lastSeenDate, "LEFT", currBid, "RIGHT", 5, 0)
     AF.SetPoint(lastSeenDate, "RIGHT", -5, 0)
     lastSeenDate:SetWordWrap(false)
     lastSeenDate:SetJustifyH("LEFT")
