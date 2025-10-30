@@ -1,2 +1,6 @@
+# ignored
 .vscode/
-.release/
+.release/*
+
+# excluded
+!.release/*.sh
