@@ -1,3 +1,4 @@
-[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r9...824f4edda959015acb2673f0cb7ccd35b828d3bb)
+[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r10...cc4b22d51361c43669f5d596f5b570a216763628)
 
-- Update toc
+- Update for MoP
+- Update point for lastSeenDate text
