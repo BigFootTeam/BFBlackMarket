@@ -21,8 +21,7 @@ AF.AddEventHandler(BFBM)
 ---------------------------------------------------------------------
 BFBM:RegisterEvent("ADDON_LOADED", function(_, _, addon)
     if addon == BFBM.name then
-        BFBM.version = AF.GetAddOnMetadata("Version")
-        BFBM.versionNum = tonumber(BFBM.version:match("%d+"))
+        BFBM.version, BFBM.versionNum = AF.GetAddOnVersion(BFBM.name)
 
         if type(BFBM_DB) ~= "table" then BFBM_DB = {} end
 
