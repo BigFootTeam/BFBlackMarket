@@ -14,6 +14,8 @@ local InCombatLockdown = InCombatLockdown
 local UnitExists = UnitExists
 local UnitIsPlayer = UnitIsPlayer
 local UnitIsConnected = UnitIsConnected
+local UnitIsUnit = UnitIsUnit
+local time = time
 local TARGET_SEND_INTERVAL = 60 * 5
 
 ---------------------------------------------------------------------
@@ -171,65 +173,65 @@ end
 ---------------------------------------------------------------------
 -- sending/receiving (whisper, for Mists only)
 ---------------------------------------------------------------------
-local targetLastRequest = {}
+-- local targetLastRequest = {}
 local targetLastSend = {}
 
 function BFBM.RequestDataNeedDecisionForTarget()
     if InCombatLockdown() then return end
     if AF.IsBlank(BFBM.dataForSend) then return end
 
+    if UnitIsUnit("player", "target") then return end
     if not (UnitExists("target") and UnitIsPlayer("target") and UnitIsConnected("target")) then return end
     if not AF.IsSameFaction("target") then return end
 
     local fullname = AF.UnitFullName("target")
     if not (fullname and AF.IsConnectedRealm(fullname)) then return end
 
-    local lastRequest = targetLastRequest[fullname]
-    if lastRequest and time() - lastRequest < TARGET_SEND_INTERVAL then return end
-    targetLastRequest[fullname] = time()
-
-    AF.SendCommMessage_Whisper(BFBM_REQ_PREFIX,
-        {AF.player.realm, BFBM.currentServerData.lastUpdate}, AF.UnitFullName("target"))
-end
-
-local function RequestReceived(data, sender)
-    if InCombatLockdown() then return end
-    if AF.IsEmpty(data) then return end
-
-    local server, lastUpdate = unpack(data)
-    if type(server) ~= "string" or type(lastUpdate) ~= "number" then return end
-    -- print("RequestReceived from", sender, "for", server, "lastUpdate", lastUpdate)
-    -- lastUpdate = time() -- TEST
-
-    local sendResp
-
-    if not BFBM_DB.data.servers[server] then
-        -- print("sendResp: no local data for", server)
-        sendResp = true
-    elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
-        -- print("sendResp: local data older for", server)
-        sendResp = true
-    else
-        -- print("no need to send response to", sender)
-    end
-
-    if sendResp then
-        AF.SendCommMessage_Whisper(BFBM_RESP_PREFIX, 1, sender)
-    end
-end
-
-local function ResponseReceived(_, sender)
-    if InCombatLockdown() then return end
-    if AF.IsBlank(BFBM.dataForSend) then return end
-
-    local lastSend = targetLastSend[sender]
+    local lastSend = targetLastSend[fullname]
     if lastSend and time() - lastSend < TARGET_SEND_INTERVAL then return end
-    targetLastSend[sender] = time()
+    targetLastSend[fullname] = time()
 
-    -- print("ResponseReceived from", sender, "- sending data")
-
-    AF.SendCommMessage_Whisper(BFBM_SEND_PREFIX, BFBM.dataForSend, sender)
+    AF.SendCommMessage_Whisper(BFBM_SEND_PREFIX, BFBM.dataForSend, fullname, nil, nil, nil, true)
 end
+
+-- local function RequestReceived(data, sender)
+--     if InCombatLockdown() then return end
+--     if AF.IsEmpty(data) then return end
+
+--     local server, lastUpdate = unpack(data)
+--     if type(server) ~= "string" or type(lastUpdate) ~= "number" then return end
+--     print("RequestReceived from", sender, "for", server, "lastUpdate", lastUpdate)
+--     -- lastUpdate = time() -- TEST
+
+--     local sendResp
+
+--     if not BFBM_DB.data.servers[server] then
+--         print("sendResp: no local data for", server)
+--         sendResp = true
+--     elseif not BFBM_DB.data.servers[server].lastUpdate or BFBM_DB.data.servers[server].lastUpdate < lastUpdate then
+--         print("sendResp: local data older for", server)
+--         sendResp = true
+--     else
+--         print("no need to send response to", sender)
+--     end
+
+--     if sendResp then
+--         AF.SendCommMessage_Whisper(BFBM_RESP_PREFIX, 1, sender)
+--     end
+-- end
+
+-- local function ResponseReceived(_, sender)
+--     if InCombatLockdown() then return end
+--     if AF.IsBlank(BFBM.dataForSend) then return end
+
+--     local lastSend = targetLastSend[sender]
+--     if lastSend and time() - lastSend < TARGET_SEND_INTERVAL then return end
+--     targetLastSend[sender] = time()
+
+--     print("ResponseReceived from", sender, "- sending data")
+
+--     AF.SendCommMessage_Whisper(BFBM_SEND_PREFIX, BFBM.dataForSend, sender, nil, nil, nil, true)
+-- end
 
 if AF.isMists then
     BFBM:RegisterEvent("PLAYER_TARGET_CHANGED", BFBM.RequestDataNeedDecisionForTarget)
