@@ -1,4 +1,3 @@
-[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r10...cc4b22d51361c43669f5d596f5b570a216763628)
+[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r11...0d456d7a23d2e4515bc67f332eb33dc8cc31dc87)
 
-- Update for MoP
-- Update point for lastSeenDate text
+- Add "whisper" data transfer for MoP
