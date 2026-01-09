@@ -295,10 +295,12 @@ local function GetBigFootClientVersion(wowProjectID)
         return 0
     elseif wowProjectID == WOW_PROJECT_CLASSIC then -- 经典60
         return 1
-    elseif wowProjectID == WOW_PROJECT_WRATH_CLASSIC then -- 巫妖王
-        return 3
-    else -- 大灾变
+    elseif wowProjectID == WOW_PROJECT_MISTS_CLASSIC then -- 熊猫人
         return 2
+    elseif wowProjectID == WOW_PROJECT_WRATH_CLASSIC then -- 时光（WOW_PROJECT_WRATH_CLASSIC）
+        return 3
+    else -- TBC
+        return 4
     end
 end
 
