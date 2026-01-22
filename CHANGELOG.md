@@ -1,3 +1,3 @@
-[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r11...0d456d7a23d2e4515bc67f332eb33dc8cc31dc87)
+[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r12...be94dadb35bb4d20d961bca3842898296cdfd11c)
 
-- Add "whisper" data transfer for MoP
+- Bump up toc
