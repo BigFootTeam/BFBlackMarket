@@ -1,7 +1,7 @@
-## Interface: 50503,110207
+## Interface: 50503,120000,120001
 ## Title: BFBlackMarket
 ## Title-zhCN: 大脚黑市
-## Version: r12
+## Version: r13
 ## Author: enderneko (BigFootTeam)
 ## Dependencies: AbstractFramework
 ## SavedVariables: BFBM_DB,BFBM_DataUpload
