@@ -24,7 +24,7 @@ local function CreateQRCodeFrame()
     text:SetSpacing(5)
 
     -- qrcode
-    local qrcode = AF.GetQRCodeFrame(qrCodeFrame, "https://bfi.178.com/wx_app/bf?source=bfbm", 140)
+    local qrcode = AF.GetQRCodeFrame(qrCodeFrame, "https://bfi.stargame.com/wx_app/bf?source=bfbm", 140)
     AF.SetPoint(qrcode, "TOP", text, "BOTTOM", 0, -10)
     qrcode:Hide()
 

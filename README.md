@@ -47,7 +47,7 @@
 # 大脚黑市（BFBlackMarket）
 
 **大脚黑市**是一个帮助你追踪和查看魔兽世界黑市拍卖行物品的插件。  
-本插件由 大脚BIGFOOT https://bigfoot.178.com 开发。  
+本插件由 大脚BIGFOOT https://bigfoot.nga.cn 开发。  
 问题反馈与建议：前往 **KOOK 大脚官方社区 https://kook.top/P7D1R1** 内的 **大脚黑市** 频道。
 
 ## 功能特点
