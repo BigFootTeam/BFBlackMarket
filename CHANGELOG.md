@@ -1,3 +1,3 @@
-[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r13...1300a9d8d69f38cd5b9e085ec41400fcfe00c6e4)
+[View Full Changelog](https://github.com/BigFootTeam/BFBlackMarket/compare/r14...409bf84cedc81f1d75428c6c7d6f3d0d67120821)
 
-- Bump up toc
+- Bump addon version and update URLs
